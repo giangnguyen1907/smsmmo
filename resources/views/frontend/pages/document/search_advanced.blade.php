@@ -1,0 +1,455 @@
+@extends('frontend.layouts.default')
+@php
+    // dd($keywords);
+@endphp
+
+@section('content')
+
+    {{-- <div class="tg-innerbanner tg-haslayout tg-parallax tg-bginnerbanner" style="height: auto !important; background: #f0f0f0; padding: 30px 50px 10px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <form action="{{ route('frontend.search.advanced') }}" class="form-horizontal" method="GET">
+                        <div class="form-group form-center">
+                            <div class="col-md-2">
+                                <label class="form-control">
+                                    <b>Bộ sưu tập:</b>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-control" name="category">
+                                    <option value="">--Tất cả--</option>
+                                    @foreach ($taxonomy_all as $item)
+                                        <option value="{{ $item->id }}"
+                                            {{isset($params['category']) && $params['category'] == $item->id ? 'selected' : '' }}>
+                                            {{ $item->title->$locale }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="input_category" 
+                                    value="{{ isset($params['input_category']) ? $params['input_category'] : '' }}">
+                            </div>
+                        </div>
+                        <div class="form-group form-center">
+                            <div class="col-md-2">
+                                <select name="logical_operator2" class="form-control">
+                                    @foreach (App\Consts::SELECT_OPERATOR as $key => $item)
+                                        <option value="{{ $key }}"
+                                            {{isset($params['logical_operator2']) && $params['logical_operator2'] == $key ? 'selected' : '' }}>
+                                            {{ $item }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-control" name="colection2">
+                                    @foreach (App\Consts::SELECT_COLECTION as $key => $item)
+                                        <option value="{{ $key }}"
+                                            {{isset($params['colection2']) && $params['colection2'] == $key ? 'selected' : '' }}>
+                                            {{ $item }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="field2"
+                                    value="{{ isset($params['field2']) ? $params['field2'] : '' }}">
+                            </div>
+                        </div>
+                        <div class="form-group form-center">
+                            <div class="col-md-2">
+                                <select name="logical_operator3" class="form-control">
+                                    @foreach (App\Consts::SELECT_OPERATOR as $key => $item)
+                                        <option value="{{ $key }}"
+                                            {{isset($params['logical_operator3']) && $params['logical_operator3'] == $key ? 'selected' : '' }}>
+                                            {{ $item }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-control" name="colection3">
+                                    @foreach (App\Consts::SELECT_COLECTION as $key => $item)
+                                        <option value="{{ $key }}"
+                                            {{isset($params['colection3']) && $params['colection3'] == $key ? 'selected' : '' }}>
+                                            {{ $item }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="field3"
+                                    value="{{ isset($params['field3']) ? $params['field3'] : '' }}">
+                            </div>
+                        </div>
+                        <div class="form-group form-center">
+                            <div class="col-md-2">
+                                <select name="logical_operator4" class="form-control">
+                                    @foreach (App\Consts::SELECT_OPERATOR as $key => $item)
+                                        <option value="{{ $key }}"
+                                            {{isset($params['logical_operator4']) && $params['logical_operator4'] == $key ? 'selected' : '' }}>
+                                            {{ $item }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-control" name="colection4">
+                                    @foreach (App\Consts::SELECT_COLECTION as $key => $item)
+                                        <option value="{{ $key }}"
+                                            {{isset($params['colection4']) && $params['colection4'] == $key ? 'selected' : '' }}>
+                                            {{ $item }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" name="field4"
+                                    value="{{ isset($params['field4']) ? $params['field4'] : '' }}">
+                            </div>
+                        </div>
+                        <div class="form-group padd-right-100">
+                            <div class="col-md-8"></div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary mar-bottom-10" style="width: 100%">{{ $array_translate[strtolower('Search')]->$locale ?? 'Search' }}</button>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="{{ route('frontend.search.advanced') }}">
+                                    <button type="button" class="btn btn-primary mar-bottom-10" style="width: 100%">{{ $array_translate[strtolower('Reset')]->$locale ?? 'Reset' }}</button>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div> --}}
+
+    <main id="tg-main" class="tg-main tg-haslayout">
+        <div class="tg-sectionspace tg-haslayout">
+            <div class="container">
+                <div class="row">
+                    <div id="tg-twocolumns" class="tg-twocolumns">
+
+                        <div class="col-xs-12 col-sm-8 col-md-8 col-lg-9 pull-right">
+                            <div id="tg-content" class="tg-content">
+                                <div class="tg-newslist">
+                                    <div class="tg-sectionhead" style="display: flex; justify-content: space-between;">
+                                        <h2>{{ $array_translate[strtolower('Search Lists')]->$locale ?? 'Search Lists' }}
+                                        </h2>
+
+                                        <div class="view-mode-toggle">
+                                            <button id="grid-view-btn" class="btn-view">
+                                                <i class="fa fa-th" aria-hidden="true"></i>
+                                            </button>
+                                            <button id="list-view-btn" class="btn-view active">
+                                                <i class="fa fa-list-ul" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="row view-doc-container list-view-doc">
+                                        @if (isset($searchDocuments) && count($searchDocuments) > 0)
+                                            @foreach ($searchDocuments as $item)
+                                                @php
+                                                    $title = $item->title;
+                                                    $brief = $item->brief;
+                                                    $image = $item->image != '' ? $item->image : '';
+                                                    $date = date('d/m/Y', strtotime($item->created_at));
+                                                    $url = '/view/' . $item->alias . '.html';
+                                                    $authorId = $item->main_author;
+
+                                                    $encodeFilePdf = base64_encode($item->filepdf);
+                                                    $encodeFileOther = base64_encode($item->file_other);
+
+                                                @endphp
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 view-doc-col">
+                                                    <article class="tg-post">
+                                                        <figure class="new"><a href="{{ $url }}"><img
+                                                                    src="{{ $image }}" alt="image description"></a>
+                                                        </figure>
+                                                        <div class="tg-postcontent">
+
+                                                            <div class="tg-posttitle">
+                                                                <h3>
+                                                                    <a href="{{ $url }}" class="line-2">
+                                                                        @foreach ($keywords as $keyword)
+                                                                            @php
+                                                                                $title = str_ireplace(
+                                                                                    $keyword,
+                                                                                    '<strong class="bold-text">' .
+                                                                                        $keyword .
+                                                                                        '</strong>',
+                                                                                    $title,
+                                                                                );
+                                                                            @endphp
+                                                                        @endforeach
+                                                                        {!! $title !!}
+                                                                    </a>
+                                                                </h3>
+                                                            </div>
+                                                            @if ($brief)
+                                                                <div class="tg-description line-4">
+                                                                    <p>{{ $brief }}</p>
+                                                                </div>
+                                                            @endif
+                                                            @if (isset($array_authors[$authorId]))
+                                                                <a
+                                                                    href="{{ route('frontend.cms.authors-documents', ['id' => $authorId]) }}">{{ $array_authors[$authorId] }}</a>
+                                                            @endif
+                                                            <ul class="tg-postmetadata">
+                                                                <li><a href="javascript:void(0);"><i
+                                                                            class="fa fa-file-pdf-o"
+                                                                            aria-hidden="true"></i><i>{{ $item->number_page }}</i></a>
+                                                                </li>
+                                                                <li><a href="javascript:void(0);"><i
+                                                                            class="fa fa-eye"></i><i>{{ $item->view }}</i></a>
+                                                                </li>
+                                                                <li><a href="javascript:void(0);"><i
+                                                                            class="fa fa-arrow-circle-o-down"
+                                                                            aria-hidden="true"></i><i>{{ $item->download }}
+                                                                        </i></a></li>
+                                                                <li class="tg-postmetadata-date"><a
+                                                                        href="javascript:void(0);"><i class="fa fa-calendar"
+                                                                            aria-hidden="true"></i><i>{{ $date }}
+                                                                        </i></a></li>
+                                                            </ul>
+
+                                                            {{-- @if (Auth::check())
+                                                                <a class="tg-btn tg-btnstyletwo new btn-down-hover"
+                                                                    href="{{ route('frontend.cms.download', ['file' => $encodeFilePdf ?: $encodeFileOther]) }}">
+                                                                    <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                                    <em>{{ $array_translate[strtolower('Download')]->$locale ?? 'Download' }}</em>
+                                                                </a>
+                                                            @else
+                                                                <a class="tg-btn tg-btnstyletwo new btn-down-hover"
+                                                                    href="javascript:void(0);" onclick="downloadFile()">
+                                                                    <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                                                    <em>{{ $array_translate[strtolower('Download')]->$locale ?? 'Download' }}</em>
+                                                                </a>
+                                                            @endif
+															@if ($item->status_hang == '1')
+															<a href="javascript:;" onclick="addToCart({{$item->id}})" class="tg-btn tg-btnstyletwo new btn-down-hover" style="margin-right: 8px">
+																<i class="fa fa-shopping-cart" aria-hidden="true"></i>
+																<em>{{ $array_translate[strtolower('Cart')]->$locale ?? 'Cart' }}</em>
+															</a>
+															@endif --}}
+                                                        </div>
+                                                    </article>
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <h3 style="text-align: center; font-style: italic;">
+                                                {{ $array_translate[strtolower('Not Found')]->$locale ?? 'Not Found' }} !
+                                            </h3>
+                                        @endif
+                                    </div>
+
+                                    {{-- {{ $searchDocuments->appends(request()->query())->links() }} --}}
+
+                                    {{-- {{ $searchDocuments->links() }} --}}
+                                </div>
+                            </div>
+                        </div>
+
+                        @include('frontend.element.left')
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <style>
+        .btn-primary:hover {
+            opacity: .8;
+        }
+
+        .bold-text {
+            color: #fff;
+            background-color: var(--primary-color);
+        }
+
+        .form-center {
+            display: flex;
+            justify-content: center;
+        }
+
+        .grid-view-doc {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .grid-view-doc .tg-post:hover {
+            box-shadow: 1px 1px 5px 1px #ccc;
+        }
+
+        .grid-view-doc .tg-post:hover figure {
+            border-color: #f4f4f4;
+        }
+
+        .grid-view-doc .col-md-3 {
+            padding: 5px;
+        }
+
+        .grid-view-doc .tg-post {
+            flex-direction: column;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding-bottom: 12px;
+        }
+
+        .grid-view-doc .new {
+            width: 100% !important;
+            -webkit-box-shadow: unset !important;
+            box-shadow: unset !important;
+        }
+
+        .grid-view-doc .new a {
+            padding: 10px 0;
+        }
+
+        .grid-view-doc .new a img {
+            object-fit: contain;
+        }
+
+        .grid-view-doc .tg-postcontent {
+            padding: 0 15px !important;
+        }
+
+        .grid-view-doc .tg-postcontent .line-2 {
+            font-size: 14px;
+        }
+
+        .btn-view {
+            padding: 6px 10px;
+            background-color: #ccc;
+        }
+
+        .btn-view.active {
+            background-color: var(--primary-color);
+            border-color: #fff;
+            color: #fff;
+        }
+
+        .btn-view:hover {
+            opacity: 0.8;
+        }
+
+        @media (min-width: 993px) {
+            .padd-right-100 {
+                padding-right: 100px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .form-center {
+                display: block;
+            }
+
+            .mar-bottom-10 {
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+
+    <script>
+        function downloadFile() {
+            alert('Vui lòng đăng nhập để tải tài liệu');
+        }
+
+        // Thêm dữ liệu trong Local Storage
+        function saveCurrentView(view) {
+            localStorage.setItem('currentView', view);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const gridViewBtn = document.getElementById('grid-view-btn');
+            const listViewBtn = document.getElementById('list-view-btn');
+
+            const viewDocContainer = document.querySelector('.view-doc-container');
+            const viewDocCols = Array.from(document.querySelectorAll('.view-doc-col'));
+            const descs = document.querySelectorAll('.view-doc-container .tg-description');
+            const dates = document.querySelectorAll('.tg-postmetadata .tg-postmetadata-date');
+            const downloads = document.querySelectorAll('.tg-postcontent .tg-btnstyletwo');
+
+            // lấy ra giá trị localstorage
+            let savedView = localStorage.getItem('currentView');
+            // let savedView = 'grid';
+            if (savedView === 'grid') {
+                showGridView();
+            } else {
+                showListView();
+            }
+
+            gridViewBtn.addEventListener('click', function() {
+                showGridView();
+                saveCurrentView('grid');
+            })
+
+            listViewBtn.addEventListener('click', function() {
+                showListView();
+                saveCurrentView('list');
+            })
+
+            function showGridView() {
+                gridViewBtn.classList.add('active');
+                listViewBtn.classList.remove('active');
+                viewDocContainer.classList.add('grid-view-doc');
+                viewDocContainer.classList.remove('list-view-doc');
+
+                viewDocCols.forEach(function(col) {
+                    ['col-md-3', 'col-xs-6'].forEach(function(cls) {
+                        col.classList.add(cls);
+                    });
+                    ['col-xs-12', 'col-sm-12', 'col-md-12', 'col-lg-12'].forEach(function(cls) {
+                        col.classList.remove(cls);
+                    });
+                });
+
+                descs.forEach(function(desc) {
+                    desc.style.display = 'none';
+                })
+
+                dates.forEach(function(date) {
+                    date.style.display = 'none';
+                })
+
+                downloads.forEach(function(download) {
+                    download.style.display = 'none';
+                })
+            }
+
+            function showListView() {
+                gridViewBtn.classList.remove('active');
+                listViewBtn.classList.add('active');
+                viewDocContainer.classList.remove('grid-view-doc');
+                viewDocContainer.classList.add('list-view-doc');
+
+                viewDocCols.forEach(function(col) {
+                    ['col-md-3', 'col-xs-6'].forEach(function(cls) {
+                        col.classList.remove(cls);
+                    });
+                    ['col-xs-12', 'col-sm-12', 'col-md-12', 'col-lg-12'].forEach(function(cls) {
+                        col.classList.add(cls);
+                    });
+                });
+
+                descs.forEach(function(desc) {
+                    desc.style.display = '-webkit-box';
+                })
+
+                dates.forEach(function(date) {
+                    date.style.display = 'block';
+                })
+
+                downloads.forEach(function(download) {
+                    download.style.display = 'block';
+                })
+            }
+        })
+    </script>
+
+@endsection

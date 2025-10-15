@@ -1,0 +1,7 @@
+thêm trường status_hang -- tb_document -- 1 còn hàng, 0 hết hàng
+
+công thức tính giá < tối thiểu => giá tối thiểu
+giá sách 4000 x X% giá sách giấy
+tự nhập giá => giá (1 trang/MB)
+ẩn giá x kích thước file
+

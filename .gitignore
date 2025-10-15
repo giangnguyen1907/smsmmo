@@ -1,0 +1,6 @@
+# Ignore all files 
+/storage/*.key
+/vendor
+/storage/framework
+/storage/logs
+.env

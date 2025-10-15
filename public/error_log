@@ -1,0 +1,2 @@
+[02-Feb-2023 14:44:48 Asia/Ho_Chi_Minh] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 7.4.0". You are running 5.6.40. in /home/vpnphaw80um5/public_html/vendor/composer/platform_check.php on line 25
+[20-Dec-2023 10:02:06 Asia/Ho_Chi_Minh] PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 4096 bytes) in /home/vb2kcoqr09ph/chovay.nvoting.com/vendor/intervention/image/src/Intervention/Image/Gd/Commands/ResizeCommand.php on line 47

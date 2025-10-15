@@ -1,0 +1,53 @@
+.align-items-center {
+	align-items: center !important;
+}
+
+.d-flex {
+	display: flex !important;
+}
+
+.chi-tiet-sach-main-table-list table td img {
+	flex: 0 0 16px;
+	max-width: 16px;
+	margin-right: 8px;
+}
+
+.chi-tiet-sach-main-table-list table td {
+	font-size: 14px;
+	color: #4f4f4f;
+	padding: 3px 12px;
+	border: 1px solid #d1d1d1;
+	text-align: left;
+}
+
+
+
+@media (max-width:766px) {
+	.icon-product {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.icon-product-detail {
+		width: 47% !important;
+		border-radius: 8px;
+		margin-bottom: 10px;
+	}
+}
+
+.tg-postbookcontent .tg-btn.download-home{
+	cursor: pointer;
+    display: flex;
+    justify-content: center;
+}
+@media (min-width:1200px) {
+	.icon-product {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.icon-product-detail {
+		width: 23% !important;
+		border-radius: 8px;
+	}
+}

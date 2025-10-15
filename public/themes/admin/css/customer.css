@@ -1,0 +1,27 @@
+div.ck-editor__editable {
+    height: 705px;
+    overflow: scroll;
+}
+
+.toast{
+    position: fixed; 
+    top: 15%; 
+    right: 15px;
+    padding: 10px;
+    background: #00a157;
+    color: #fff;
+    border-radius: 5px;
+}
+.check_action{
+border: 1px solid #ccc;
+padding: 10px 10px 2px 10px;
+margin-bottom: 0px;
+}
+.mb-0 {margin-bottom: 0px;}
+
+.post_waiting {
+    color: #ec3e3e;
+}
+.post_waiting a{
+    color: #ec3e3e;
+}
