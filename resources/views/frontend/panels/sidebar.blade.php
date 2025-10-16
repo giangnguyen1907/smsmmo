@@ -5,7 +5,7 @@
   <section class="sidebar">
     <!-- sidebar menu: : style can be found in sidebar.less -->
     <ul class="sidebar-menu">
-
+      @guest
         <li class="">
           <a href="{{ route('frontend.login') }}">
             <i class="fa fa-sign-in"></i> <span>Đăng Nhập</span>
@@ -16,7 +16,14 @@
             <i class="fa fa-user-circle"></i> <span>Đăng Ký</span>
           </a>
         </li>
-
+      @endguest
+      @auth 
+       <li class="">
+          <a href="{{ route('frontend.user.index') }}">
+            <i class="fa fa-sign-in"></i> <span> {{ Auth::user()->name ?? 'Người dùng' }}</span>
+          </a>
+        </li>
+      @endauth
         <hr class="hr-customer">
 
         <li class="">
