@@ -6,54 +6,100 @@
     {{-- Form tìm kiếm --}}
      <form action="{{ route('frontend.service.rent-sim') }}" method="GET">
       <div class="box-header pb-3">
-        <h3 class="box-title mb-3"><i class="fa fa-sim-card"></i> Danh sách thuê sim</h3>
-
-        <div class="row">
-          <div class="col-md-3 mb-2">
-            <input type="text" name="keyword" class="form-control"
-              placeholder="Tìm theo số thuê..."
-              value="{{ request('keyword') }}">
+        <h3 class="box-title mb-3"><i class="fa fa-sim-card"></i> Thuê sim nhanh </h3>
+        <div class="row box-body table-responsive">
+        <div class="col-12">
+          <div class="alert alert-warning rounded-3 p-3">
+            - Không đồng ý dùng SMS trái pháp luật.<br>
+            - Chọn dịch vụ và đầu số, nếu không chọn đầu số thì chọn nhà mạng.<br>
+            - Tạo yêu cầu đồng nghĩa chấp nhận rủi ro sim bị chặn.
           </div>
-
-          <div class="col-md-3 mb-2">
-            <select name="network" class="form-control">
-              <option value="">-- Chọn nhà mạng --</option>
-              <option value="Viettel" {{ request('network')=='Viettel' ? 'selected' : '' }}>Viettel</option>
-              <option value="Mobifone" {{ request('network')=='Mobifone' ? 'selected' : '' }}>Mobifone</option>
-              <option value="Vinaphone" {{ request('network')=='Vinaphone' ? 'selected' : '' }}>Vinaphone</option>
-            </select>
-          </div>
-
-          <div class="col-md-3 mb-2">
-            <select name="service" class="form-control">
+    </div>
+</div>
+        
+        <h4 class="box-title mb-3"><i class="fa fa-sim-card"></i> Vui lòng chọn </h4>
+        
+        <div class="row mt-3">
+          
+          
+          <div class="col-md-4 mb-2">
+            <select id="DichVuSim" name="DichVuSim" class="form-control">
               <option value="">-- Chọn dịch vụ --</option>
-              <option value="Facebook" {{ request('service')=='Facebook' ? 'selected' : '' }}>Facebook</option>
-              <option value="Zalo" {{ request('service')=='Zalo' ? 'selected' : '' }}>Zalo</option>
-              <option value="Telegram" {{ request('service')=='Telegram' ? 'selected' : '' }}>Telegram</option>
-              <option value="Shopee" {{ request('service')=='Shopee' ? 'selected' : '' }}>Shopee</option>
+                                <option value="4" data-price="18000">Gửi SMS - VIP2 (Viettel) - (18.000đ) - Live 10 phút</option>
+                                <option value="6" data-price="17000">Gửi SMS - VIP1 (Mạng Khác) - (17.000đ) - Live 15 phút</option>
+                                <option value="29" data-price="10000">Nhận ALL GAME - (10.000đ) - Live 5 phút</option>
+                                <option value="37" data-price="10000">Nhận - OKVIP2 - 789BET - (10.000đ) - Live 5 phút</option>
+                                <option value="11" data-price="10000">Nhận - OKVIP - (10.000đ) - Live 5 phút</option>
+                                <option value="89" data-price="20000">CuocGoi 5day (Chuyển cuộc gọi) - (20.000đ) - Live 10 phút</option>
+                                <option value="33" data-price="10000">DV KHÁC - (10.000đ) - Live 8.3 phút</option>
+                                <option value="81" data-price="3000">Facebook - (3.000đ) - Live 6 phút</option>
+                                <option value="83" data-price="15000">Telegram - (15.000đ) - Live 8 phút</option>
+                                <option value="84" data-price="20000">Zalopc - (20.000đ) - Live 10 phút</option>
             </select>
           </div>
 
-          <div class="col-md-2 mb-2">
-            <select name="status" class="form-control">
-              <option value="">-- Trạng thái --</option>
-              <option value="available" {{ request('status')=='available' ? 'selected' : '' }}>Còn trống</option>
-              <option value="rented" {{ request('status')=='rented' ? 'selected' : '' }}>Đang thuê</option>
+          <div class="col-md-4 mb-2">
+            <select name="network"  id="NhaMang" class="form-control">
+              <option value="OTHER2">Chọn nhà mạng</option>
+                                <option value="VIETTEL">VIETTEL</option>
+                                <option value="MOBIFONE">MOBIFONE</option>
+                                <option value="VINAPHONE">VINAPHONE</option>
+                                <option value="VIETNAMOBILE">VIETNAMOBILE</option>
+                                <option value="GMOBILE">GMOBILE</option>
             </select>
           </div>
 
-          <div class="col-md-1 mb-2 d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary mr-2" data-toggle="tooltip" title="Tìm kiếm">
-              <i class="fa fa-search"></i>
-            </button>
-            <a class="btn btn-secondary" href="{{ route('frontend.service.rent-sim') }}" data-toggle="tooltip" title="Làm mới">
-              <i class="fa fa-refresh"></i>
-            </a>
-          </div>
+
+          <div class="col-md-4">
+                            <select id="prefixs" name="prefixs[]" size="1" class="form-control">
+                              <option value="">Chọn đầu số</option>
+                                <option value="32">32</option>
+                                <option value="33">33</option>
+                                <option value="34">34</option>
+                                <option value="35">35</option>
+                                <option value="36">36</option>
+                                <option value="37">37</option>
+                                <option value="38">38</option>
+                                <option value="39">39</option>
+                            </select>
+            </div>
+
+  
+        </div>
+        <div class="row mt-3">
+                  <div class="col-md-6 mt-3">
+    <label>💰 Thanh toán: <b id="priceFM" class="text-danger">0đ</b></label> </br>
+    <button class="btn btn-primary mr-2" type="submit" id="btnBuy">Tạo Tiến Trình</button>
+    </div>
         </div>
       </div>
     </form>
+   <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const serviceSelect = document.getElementById('DichVuSim'); // Dropdown dịch vụ
+                const priceLabel = document.getElementById('priceFM'); // Label hiển thị giá
 
+                // Hàm cập nhật giá
+                function updatePrice() {
+                    const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+                    let price = 0;
+
+                    // Nếu có giá trong thuộc tính data-price
+                    if (selectedOption && selectedOption.dataset && selectedOption.dataset.price) {
+                        price = parseInt(selectedOption.dataset.price); // Chuyển đổi giá trị thành số
+                    }
+
+                    // Cập nhật giá hiển thị
+                    priceLabel.textContent = price.toLocaleString('vi-VN') + 'đ';
+                }
+
+                // Bắt sự kiện khi người dùng thay đổi lựa chọn
+                serviceSelect.addEventListener('change', updatePrice);
+
+                // Khởi tạo giá khi tải trang
+                updatePrice();
+            });
+        </script>
     <div class="box-body table-responsive">
 
       {{-- Hiển thị thông báo --}}
@@ -154,7 +200,7 @@
     </div>
   </div>
 
-  {{-- Khu vực hiển thị OTP --}}
+  <!-- {{-- Khu vực hiển thị OTP --}}
   <div id="otpSection" class="mt-3 d-none">
     <div class="alert alert-info">
       <i class="fa fa-spinner fa-spin"></i> Đang chờ mã OTP cho số <strong id="otpSimNumber"></strong>...
@@ -162,63 +208,12 @@
     <div id="otpResult" class="alert alert-success d-none">
       <i class="fa fa-check-circle"></i> Mã OTP: <strong id="otpCode"></strong>
     </div>
-  </div>
+  </div> -->
 </section>
 
 @push('scripts')
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  let selectedSim = {};
-  let rentInterval;
+     
 
-  document.querySelectorAll(".rent-btn").forEach(btn => {
-    btn.addEventListener("click", function () {
-      selectedSim = {
-        id: this.dataset.id,
-        number: this.dataset.number,
-        service: this.dataset.service,
-        price: this.dataset.price
-      };
-      document.getElementById("simNumber").textContent = selectedSim.number;
-      document.getElementById("simService").textContent = selectedSim.service;
-      document.getElementById("simPrice").textContent = selectedSim.price;
-    });
-  });
-
-  document.getElementById("confirmRent").addEventListener("click", function () {
-    fetch("{{ route('rentsim.create') }}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-      },
-      body: JSON.stringify(selectedSim)
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        const modal = bootstrap.Modal.getInstance(document.getElementById('rentModal'));
-        modal.hide();
-
-        document.getElementById("otpSection").classList.remove("d-none");
-        document.getElementById("otpSimNumber").textContent = selectedSim.number;
-
-        rentInterval = setInterval(() => {
-          fetch(`/rentsim/progress/${data.rent_id}`)
-            .then(res => res.json())
-            .then(res => {
-              if (res.success && res.status === 'received') {
-                clearInterval(rentInterval);
-                document.querySelector('#otpResult').classList.remove('d-none');
-                document.querySelector('#otpCode').textContent = res.otp;
-              }
-            });
-        }, 3000);
-      }
-    });
-  });
-});
-</script>
 @endpush
 <style>
 .box {
@@ -235,6 +230,10 @@ document.addEventListener("DOMContentLoaded", function () {
 }
 .valign-middle td {
   vertical-align: middle !important;
+}
+.alert {
+    width: 100%;
+    box-sizing: border-box;
 }
 </style>
 @endsection

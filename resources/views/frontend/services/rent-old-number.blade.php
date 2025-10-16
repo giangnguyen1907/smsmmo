@@ -6,54 +6,41 @@
     {{-- Form tìm kiếm --}}
     <form action="{{ route('frontend.service.rent-old-number') }}" method="GET">
       <div class="box-header pb-3">
-        <h3 class="box-title mb-3"><i class="fa fa-history"></i> Danh sách thuê số cũ</h3>
+        <h3 class="box-title mb-3"><i class="fa fa-history"></i> Thuê số cũ - Đổi dịch vụ</h3>
+      <div class="row box-body table-responsive">
+        <div class="col-12">
+          <div class="alert alert-warning rounded-3 p-3">
+            - Sim bên mình đảo số liên tục , lên trường hợp Không Online các bạn cũng thông cảm (có thể hôm khác sẽ được lắp lại, nhưng các bạn bảo lắp lại thì không có)
+</br>
+- Dịch vụ này chỉ là góp 1 phần thuê lại số , nó không hoàn hảo tuyệt đối , mong các bạn thông cảm , có trường hợp thuê 5 ngày vẫn thuê lại được , có trường hợp hết lượt cái đúng lúc bị tháo sim lên anh em chú ý giúp.
 
-        <div class="row">
-          <div class="col-md-3 mb-2">
-            <input type="text" name="keyword" class="form-control"
-              placeholder="Tìm theo số thuê..."
-              value="{{ request('keyword') }}">
           </div>
-
-          <div class="col-md-3 mb-2">
-            <select name="network" class="form-control">
-              <option value="">-- Chọn nhà mạng --</option>
-              <option value="Viettel" {{ request('network')=='Viettel' ? 'selected' : '' }}>Viettel</option>
-              <option value="Mobifone" {{ request('network')=='Mobifone' ? 'selected' : '' }}>Mobifone</option>
-              <option value="Vinaphone" {{ request('network')=='Vinaphone' ? 'selected' : '' }}>Vinaphone</option>
-            </select>
-          </div>
-
-          <div class="col-md-3 mb-2">
-            <select name="service" class="form-control">
-              <option value="">-- Chọn dịch vụ --</option>
-              <option value="Facebook" {{ request('service')=='Facebook' ? 'selected' : '' }}>Facebook</option>
-              <option value="Zalo" {{ request('service')=='Zalo' ? 'selected' : '' }}>Zalo</option>
-              <option value="Telegram" {{ request('service')=='Telegram' ? 'selected' : '' }}>Telegram</option>
-              <option value="Shopee" {{ request('service')=='Shopee' ? 'selected' : '' }}>Shopee</option>
-            </select>
-          </div>
-
-          <div class="col-md-2 mb-2">
-            <select name="status" class="form-control">
-              <option value="">-- Trạng thái --</option>
-              <option value="available" {{ request('status')=='available' ? 'selected' : '' }}>Còn trống</option>
-              <option value="rented" {{ request('status')=='rented' ? 'selected' : '' }}>Đang thuê</option>
-            </select>
-          </div>
-
-          <div class="col-md-1 mb-2 d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary mr-2" data-toggle="tooltip" title="Tìm kiếm">
-              <i class="fa fa-search"></i>
-            </button>
-            <a class="btn btn-secondary" href="{{ route('frontend.service.rent-old-number') }}" data-toggle="tooltip" title="Làm mới">
-              <i class="fa fa-refresh"></i>
-            </a>
-          </div>
-        </div>
       </div>
-    </form>
+</div>
+        <div class="row container">
+        
+          <div class="col-md-12 mb-2">
+            <label>🥷 Chọn Dịch Vụ <span class="text-danger">*</span></label>
+           <select id="DichVuSim" name="DichVuSim" class="form-control">
+              <option value="">-- Chọn dịch vụ --</option>
+                                <option value="4" data-price="18000">Gửi SMS - VIP2 (Viettel) - (18.000đ) - Live 10 phút</option>
+                                <option value="6" data-price="17000">Gửi SMS - VIP1 (Mạng Khác) - (17.000đ) - Live 15 phút</option>
+                                <option value="29" data-price="10000">Nhận ALL GAME - (10.000đ) - Live 5 phút</option>
+                                <option value="37" data-price="10000">Nhận - OKVIP2 - 789BET - (10.000đ) - Live 5 phút</option>
+                                <option value="11" data-price="10000">Nhận - OKVIP - (10.000đ) - Live 5 phút</option>
+                                <option value="89" data-price="20000">CuocGoi 5day (Chuyển cuộc gọi) - (20.000đ) - Live 10 phút</option>
+                                <option value="33" data-price="10000">DV KHÁC - (10.000đ) - Live 8.3 phút</option>
+                                <option value="81" data-price="3000">Facebook - (3.000đ) - Live 6 phút</option>
+                                <option value="83" data-price="15000">Telegram - (15.000đ) - Live 8 phút</option>
+                                <option value="84" data-price="20000">Zalopc - (20.000đ) - Live 10 phút</option>
+            </select>
+          </div>
 
+           
+                  <div class=""></br>  <label>💞 Chọn Số Cũ <span class="text-danger">*</span></label> 
+Không có số nào được tìm thấy! 
+</div>
+ 
     <div class="box-body table-responsive">
 
       {{-- Thông báo --}}
@@ -126,6 +113,13 @@
         {{ $oldNumbers->withQueryString()->links('pagination::bootstrap-4') }}
       </div>
     @endif
+                                <div class="mb-1"></br>
+                                   <button class="btn btn-success" type="button" id="btnBuy">Tạo Yêu Cầu</button> <button class="btn btn-warning"> <a href="/lich-su-thue-sim">Lịch Sử Mua</a></button>
+                                </div>
+        </div>
+      </div>
+    </form>
+
   </div>
 </section>
 
