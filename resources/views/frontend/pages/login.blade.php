@@ -1,4 +1,4 @@
-@extends('admin/layouts/auth')
+@extends('frontend.layouts.default')
 
 @section('content')
   <div class="login-box">

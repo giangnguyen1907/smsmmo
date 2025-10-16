@@ -134,8 +134,13 @@ class ServiceController extends Controller
         ]);
     }
 
-    public function rentHistory(Request $request)
+   public function rentHistory(Request $request)
     {
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
+
         $user = Auth::user();
         $keyword = $request->get('keyword');
 
@@ -143,7 +148,7 @@ class ServiceController extends Controller
             ->where('user_id', $user->id)
             ->when($keyword, function ($q) use ($keyword) {
                 $q->where('number', 'LIKE', "%$keyword%")
-                  ->orWhere('service', 'LIKE', "%$keyword%");
+                ->orWhere('service', 'LIKE', "%$keyword%");
             })
             ->orderByDesc('id')
             ->paginate(10);

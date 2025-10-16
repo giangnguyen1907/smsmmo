@@ -114,7 +114,8 @@ Không có số nào được tìm thấy!
       </div>
     @endif
                                 <div class="mb-1"></br>
-                                   <button class="btn btn-success" type="button" id="btnBuy">Tạo Yêu Cầu</button> <button class="btn btn-warning"> <a href="/lich-su-thue-sim">Lịch Sử Mua</a></button>
+                                   <button class="btn btn-success" type="button" id="btnBuy">Tạo Yêu Cầu</button> 
+                                   <button class="btn btn-warning"> <a style="color:white;"href="/lich-su-thue-sim">Lịch Sử Mua</a></button>
                                 </div>
         </div>
       </div>
