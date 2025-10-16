@@ -18,9 +18,14 @@
         </li>
       @endguest
       @auth 
-       <li class="">
+        <li class="">
           <a href="{{ route('frontend.user.index') }}">
-            <i class="fa fa-sign-in"></i> <span> {{ Auth::user()->name ?? 'Người dùng' }}</span>
+            <i class="fa fa-user-o"></i> <span> {{ Auth::user()->name ?? 'Người dùng' }}</span>
+          </a>
+        </li>
+        <li class="">
+          <a href="{{ route('frontend.user.index') }}">
+            <i class="fa fa-money"></i> Số dư: <span> {{ number_format(auth()->user()->wallet)}}</span>
           </a>
         </li>
         

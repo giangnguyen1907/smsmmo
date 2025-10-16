@@ -6,11 +6,41 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\RentHistory;
 
+use App\Models\CmsHistoryRechargeuser;
+
+use Illuminate\Support\Facades\Http;
 
 class ServiceController extends Controller
 {
-  public function rentSim(Request $request)
+    protected $apitoken;
+    protected $web_information;
+
+    public function rentSim(Request $request)
     {
+        // // dd($this->apitoken);
+        // $url = 'https://bossotp.net/api/v5/service-manager/services/me';
+        // $apiToken = 'sk_D3eTBZ5GH7VwvcwNQb6NIQmFTGJNj9kR';
+
+        // $response = Http::withHeaders([
+        //     'accept' => '*/*',
+        // ])->get($url, [
+        //     'api_token' => $apiToken,
+        // ]);
+        // // dd($response->json());
+        // if ($response->successful()) {
+        //     // Trả về dữ liệu JSON
+        //     $danhSachDichVu = $response->json();
+        //     // dd($danhSachDichVu);
+        //     // return $response->json();
+        // } else {
+        //     // Xử lý lỗi
+        //     // return response()->json([
+        //     //     'error' => 'Không thể lấy dữ liệu từ API',
+        //     //     'status' => $response->status(),
+        //     //     'message' => $response->body()
+        //     // ], $response->status());
+        // }
+
         $sims = collect([
             (object) ['id'=>1,'network'=>'Viettel','service'=>'Facebook','number'=>'0987123456','price'=>3000,'status'=>'available'],
             (object) ['id'=>2,'network'=>'Mobifone','service'=>'Zalo','number'=>'0905123456','price'=>3500,'status'=>'rented'],
@@ -134,7 +164,7 @@ class ServiceController extends Controller
         ]);
     }
 
-   public function rentHistory(Request $request)
+    public function rentHistory(Request $request)
     {
         // Kiểm tra xem người dùng đã đăng nhập chưa
         if (!Auth::check()) {
@@ -160,76 +190,76 @@ class ServiceController extends Controller
      * Trang nạp tiền
      */
     public function rechargeSim(Request $request)
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    // Xử lý form nạp tiền
-    if ($request->isMethod('post')) {
-        $amount = (int) $request->input('amount');
-        $method = $request->input('method');
+        // Xử lý form nạp tiền
+        if ($request->isMethod('post')) {
+            $amount = (int) $request->input('amount');
+            $method = $request->input('method');
 
-        if ($amount < 10000) {
-            return back()->with('errorMessage', 'Số tiền tối thiểu để nạp là 10.000 VNĐ.');
+            if ($amount < 10000) {
+                return back()->with('errorMessage', 'Số tiền tối thiểu để nạp là 10.000 VNĐ.');
+            }
+
+            $user->balance += $amount;
+            $user->save();
+
+            // Lưu lại lịch sử nạp (giả lập)
+            // Trong thực tế, bạn lưu vào DB
+            session()->push('recharge_history', [
+                'amount' => $amount,
+                'method' => $method,
+                'created_at' => now()->format('Y-m-d H:i:s'),
+            ]);
+
+            return back()->with('successMessage', "Nạp thành công " . number_format($amount) . " VNĐ qua {$method}!");
         }
 
-        $user->balance += $amount;
-        $user->save();
-
-        // Lưu lại lịch sử nạp (giả lập)
-        // Trong thực tế, bạn lưu vào DB
-        session()->push('recharge_history', [
-            'amount' => $amount,
-            'method' => $method,
-            'created_at' => now()->format('Y-m-d H:i:s'),
+        // Giả lập danh sách sim của user
+        $sims = collect([
+            (object) ['id' => 1, 'number' => '0987123456', 'network' => 'Viettel', 'balance' => 12000, 'status' => 'active'],
+            (object) ['id' => 2, 'number' => '0905123456', 'network' => 'Mobifone', 'balance' => 5000, 'status' => 'inactive'],
         ]);
 
-        return back()->with('successMessage', "Nạp thành công " . number_format($amount) . " VNĐ qua {$method}!");
+        // Lọc theo keyword và trạng thái
+        $keyword = $request->keyword;
+        $status = $request->status;
+
+        $filtered = $sims->filter(function ($sim) use ($keyword, $status) {
+            $matchKeyword = !$keyword || str_contains($sim->number, $keyword) || str_contains($sim->network, $keyword);
+            $matchStatus = !$status || $sim->status === $status;
+            return $matchKeyword && $matchStatus;
+        });
+
+        // Phân trang thủ công cho sim
+        $perPage = 10;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentItems = $filtered->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        $activeSims = new LengthAwarePaginator(
+            $currentItems,
+            $filtered->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        // Lấy lịch sử nạp tiền từ session (giả lập)
+        $rechargeHistory = collect(session('recharge_history', []))->reverse(); // mới nhất lên trước
+        $rechargeItems = $rechargeHistory->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        $recharges = new LengthAwarePaginator(
+            $rechargeItems,
+            $rechargeHistory->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
+        return view('frontend.services.recharge-sim', compact('activeSims', 'recharges'));
     }
-
-    // Giả lập danh sách sim của user
-    $sims = collect([
-        (object) ['id' => 1, 'number' => '0987123456', 'network' => 'Viettel', 'balance' => 12000, 'status' => 'active'],
-        (object) ['id' => 2, 'number' => '0905123456', 'network' => 'Mobifone', 'balance' => 5000, 'status' => 'inactive'],
-    ]);
-
-    // Lọc theo keyword và trạng thái
-    $keyword = $request->keyword;
-    $status = $request->status;
-
-    $filtered = $sims->filter(function ($sim) use ($keyword, $status) {
-        $matchKeyword = !$keyword || str_contains($sim->number, $keyword) || str_contains($sim->network, $keyword);
-        $matchStatus = !$status || $sim->status === $status;
-        return $matchKeyword && $matchStatus;
-    });
-
-    // Phân trang thủ công cho sim
-    $perPage = 10;
-    $currentPage = LengthAwarePaginator::resolveCurrentPage();
-    $currentItems = $filtered->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-    $activeSims = new LengthAwarePaginator(
-        $currentItems,
-        $filtered->count(),
-        $perPage,
-        $currentPage,
-        ['path' => request()->url(), 'query' => request()->query()]
-    );
-
-    // Lấy lịch sử nạp tiền từ session (giả lập)
-    $rechargeHistory = collect(session('recharge_history', []))->reverse(); // mới nhất lên trước
-    $rechargeItems = $rechargeHistory->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-    $recharges = new LengthAwarePaginator(
-        $rechargeItems,
-        $rechargeHistory->count(),
-        $perPage,
-        $currentPage,
-        ['path' => request()->url(), 'query' => request()->query()]
-    );
-
-    return view('frontend.services.recharge-sim', compact('activeSims', 'recharges'));
-}
- public function create101(Request $request)
+    public function create101(Request $request)
     {
         // Giả lập data
         $images = collect([
@@ -302,22 +332,37 @@ class ServiceController extends Controller
 
     public function rechargeAccount(Request $request)
     {
+        
+        // dd($ip1);
         if ($request->isMethod('post')) {
             $user = Auth::user();
-            $amount = (int) $request->input('amount');
+            
+            $params = $request->all();
+            $submit = $params['submit'];
+            $amount_payment = $params['amount_payment'];
+            $trans_code_transfer = $params['trans_code_transfer'];
+            $customer_note = 'Nạp tiền tài khoản ' . Auth::user()->id;
+            $recharge_info = time().rand(100,999);
 
-            if ($amount < 10000) {
+            if ($amount_payment < 10000) {
                 return back()->with('errorMessage', 'Số tiền tối thiểu để nạp là 10.000 VNĐ.');
             }
-
-            // Giả lập cộng tiền
-            $user->balance += $amount;
-            $user->save();
-
-            return back()->with('successMessage', "Nạp thành công " . number_format($amount) . " VNĐ!");
+            
+            $historyRecharge = CmsHistoryRechargeuser::create([
+                'recharge_info' => $trans_code_transfer,
+                'customer_id' => Auth::user()->id,
+                'payment' => $amount_payment,
+                'status' => 3, // trạng thái chờ duyệt
+                'payment_method' => 2, // Chuyển khoản
+            ]);
+            return redirect()->back()->with('successMessage', 'Cảm ơn bạn đã nạp tiền, vui lòng chờ 1-10 phút. Hệ thống đang xử lý yêu cầu của bạn.');
+            // return back()->with('successMessage', "Nạp thành công " . number_format($amount) . " VNĐ!");
         }
 
-        return view('frontend.services.recharge-account');
+        // dd($this->web_information);
+        // $this->responseData['web_information'] = $this->web_information;
+
+        return view('frontend.services.recharge-account',['web_information'=>$this->web_information]);
     }
 
 }

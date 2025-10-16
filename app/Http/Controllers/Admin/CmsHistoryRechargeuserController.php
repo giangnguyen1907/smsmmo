@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 
 class CmsHistoryRechargeuserController extends Controller
 {
+    
 	public function __construct()
     {
         $this->routeDefault  = 'cms_history_rechargeuser';
@@ -22,6 +23,8 @@ class CmsHistoryRechargeuserController extends Controller
 		$this->responseData['array_istype'] = $this->array_istype = array(1=>'VNPay',2=>'Chuyển khoản',3=>'Hệ thống nạp tiền');
         $this->responseData['array_status'] = $this->array_status = array(0=>'Thất bại',1=>'Thành công','2'=>'Hủy',3=>'Chờ duyệt', 4=>'Thu hồi');
 		
+        //$this->apitoken = ContentService::getApiToken();
+
     }
     /**
      * Display a listing of the resource.
@@ -30,6 +33,7 @@ class CmsHistoryRechargeuserController extends Controller
      */
     public function index(Request $request)
     {
+        
 		if(ContentService::checkRole($this->routeDefault,'index') == 0){
 			$this->responseData['module_name'] = __('Bạn không có quyền truy cập chức năng này');
 			return $this->responseView($this->viewPart . '.404');

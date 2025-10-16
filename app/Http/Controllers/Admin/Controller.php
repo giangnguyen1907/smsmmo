@@ -23,12 +23,19 @@ class Controller extends BaseController
     protected $routeDefault;
     // Data response to view
     protected $responseData = [];
-
+    
     /**
      * Xử lý các thông tin hệ thống trước khi đổ ra view
      * @author: ThangNH
      * @created_at: 2021/10/01
      */
+
+    // public function __construct()
+    // {
+    //     $this->apitoken = 'AAAAAADDD';
+    //     $params['apitoken'] = $this->apitoken;
+    //     dd($params['apitoken']);
+    // }
 
     protected function responseView($view )
     {

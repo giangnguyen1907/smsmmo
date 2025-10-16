@@ -2,9 +2,9 @@
   <!-- Logo -->
   <a href="{{ route('frontend.home') }}" class="logo">
     <!-- mini logo for sidebar mini 50x50 pixels -->
-    <span class="logo-mini"><b>NW</b></span>
+    <span class="logo-mini"><b>MMO</b></span>
     <!-- logo for regular state and mobile devices -->
-    <span class="logo-lg"><b>NewwayTech</b></span>
+    <span class="logo-lg"><b>SMS MMO</b></span>
   </a>
   <!-- Header Navbar: style can be found in header.less -->
   <nav class="navbar navbar-static-top">

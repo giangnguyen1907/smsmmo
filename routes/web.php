@@ -56,14 +56,14 @@ Route::namespace('FrontEnd')->group(function () {
   Route::get('/thue-so-cu', 'ServiceController@rentOldNumber')->name('frontend.service.rent-old-number');
   Route::get('/lich-su-thue-sim', 'ServiceController@rentHistory')->name('frontend.service.history');
   Route::get('/nap-sim', 'ServiceController@rechargeSim')->name('frontend.service.recharge');
-  Route::post('/nap-tien-sim', [ServiceController::class, 'rechargeSubmit'])->name('frontend.service.recharge-sim.submit');
+  Route::post('/nap-tien-sim', 'ServiceController@rechargeSubmit')->name('frontend.service.recharge-sim.submit');
 
   // Tạo ảnh *101#
-Route::get('/create-101', [App\Http\Controllers\FrontEnd\ServiceController::class, 'create101'])->name('frontend.service.create-101');
+  Route::get('/create-101', [App\Http\Controllers\FrontEnd\ServiceController::class, 'create101'])->name('frontend.service.create-101');
 
-// Ảnh gửi tin nhắn
-Route::get('/send-message-img', [App\Http\Controllers\FrontEnd\ServiceController::class, 'sendMessageImg'])->name('frontend.service.send-message-img');
-Route::match(['get','post'], '/recharge-account', [App\Http\Controllers\FrontEnd\ServiceController::class, 'rechargeAccount'])
+  // Ảnh gửi tin nhắn
+  Route::get('/send-message-img', [App\Http\Controllers\FrontEnd\ServiceController::class, 'sendMessageImg'])->name('frontend.service.send-message-img');
+  Route::match(['get','post'], '/recharge-account', [App\Http\Controllers\FrontEnd\ServiceController::class, 'rechargeAccount'])
     ->name('frontend.service.recharge-account');
 
 

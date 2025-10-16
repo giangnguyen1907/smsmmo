@@ -45,6 +45,17 @@ use App\Models\CmsHistoryBuyebook;
 
 class ContentService
 {
+    
+    public static function getApiToken()
+    {
+        $data = Option::where('is_system_param', 0)->where('option_name','information')->first();
+        $apitoken = '';
+        if($data){
+            $apitoken = json_decode($data->option_value)->apitoken ?? '';
+        }
+        return $apitoken;
+    }
+
     public static function getHistoryBuyebook($params, $isPaginate = false)
     {
         $query = CmsHistoryBuyebook::selectRaw('tb_history_buyebook.*,

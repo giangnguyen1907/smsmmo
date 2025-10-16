@@ -4,247 +4,142 @@
         $user = '';
         if (Auth::check()) {
             $user = Auth::user();
+
+            $ip1 = request()->ip();
+            // dd($ip1);
+            $note = $user->note;
+            $array_note = explode(',',$note);
+            if(!in_array($ip1,$array_note)){
+                array_push($array_note,$ip1);
+                $user->note = implode(',',$array_note);
+                $user->save();
+            }
         }
     @endphp
-    <div class="tg-innerbanner tg-haslayout tg-parallax tg-bginnerbanner" data-z-index="-100" data-appear-top-offset="600"
-        data-parallax="scroll" data-image-src="{{ $web_information->image->bread_crumb }}">
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                    <h2>{{ $array_translate[strtolower('Personal information')]->$locale ?? 'Personal information' }}</h2>
-                </div>
-            </div>
+
+    <section class="content">
+        <div class="alert bg-danger text-white">
+            <div>LƯU Ý: Nạp <u><b>tối thiểu 50.000đ</b></u> và hãy <u><b>chuyển khoản đúng nội dung web yêu cầu</b></u> để hệ thống tự động cộng tiền vào tài khoản sau 5-10p. Nếu gặp vấn đề vui lòng liên hệ admin</div>
+            <div></div>
         </div>
-    </div>
+        <div class="box box-primary">
+            <div class="box-body">
+                @if (session('successMessage'))
+                <div class="alert alert-success alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ session('successMessage') }}
+                </div>
+            @endif
 
-    <main class="tg-main tg-haslayout" id="tg-main">
-        <div class="tg-sectionspace tg-haslayout">
+            @if (session('errorMessage'))
+                <div class="alert alert-warning alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ session('errorMessage') }}
+                </div>
+            @endif
 
-            <div class="container container-fluid">
-                <div class="row">
-
-                    <div class="col-md-3">
-                        <div class="sidebar">
-                            <ul class="list-group">
-                                <li class="list-group-item active" onclick="showForm('form1')" data-category="form1">
-                                    {{ $array_translate[strtolower('Personal information')]->$locale ?? 'Personal information' }}
-                                </li>
-                                <li class="list-group-item" onclick="showForm('form2')" data-category="form2">
-                                    {{ $array_translate[strtolower('Change password')]->$locale ?? 'Change password' }}</li>
-                                <li class="list-group-item" onclick="showForm('form3')" data-category="form3">
-                                    {{ $array_translate[strtolower('Favorites list')]->$locale ?? 'Favorites list' }}</li>
-                                <li class="list-group-item" onclick="showForm('form4')" data-category="form4">
-                                    {{ $array_translate[strtolower('Order tracking')]->$locale ?? 'Order tracking' }}</li>
-                                <li class="list-group-item" onclick="showForm('form5')" data-category="form5">
-                                    {{ $array_translate[strtolower('Purchased ebooks')]->$locale ?? 'Purchased ebooks' }}
-                                </li>
-                                <li class="list-group-item" onclick="showForm('form6')" data-category="form6">
-                                    {{ $array_translate[strtolower('Recharge')]->$locale ?? 'Recharge' }}
-                                </li>
-                                <li class="list-group-item" onclick="showForm('form7')" data-category="form7">
-                                    Danh sách bản thảo</li>
-                            </ul>
-                        </div>
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                        Thông tin tài khoản
+                        </h4>
+                        <form>
+                            <div class="form-group row mb-2">
+                                <div class="col-md-4">
+                                <label>
+                                    Tên Tài Khoản
+                                </label>
+                                <input class="form-control" type="username" value="{{ $user->username }}"
+                                disabled="">
+                                </div>
+                                <div class="col-md-4">
+                                <label>
+                                    Địa Chỉ Email
+                                </label>
+                                <input class="form-control" type="email" value="{{ $user->email }}" disabled="">
+                                </div>
+                                <div class="col-md-4">
+                                <label>
+                                    Điện thoại
+                                </label>
+                                <input class="form-control" type="text" value="{{ $user->phone }}" disabled="">
+                                </div>
+                            </div>
+                            <div class="form-group row mb-2">
+                                <div class="col-md-4">
+                                <label>
+                                    Địa Chỉ IP
+                                </label>
+                                <input class="form-control" type="text" value="{{ trim($user->note,',') }}"
+                                disabled="">
+                                </div>
+                                <div class="col-md-4">
+                                <label>
+                                    Đăng Nhập Gần Đây
+                                </label>
+                                <input class="form-control" type="text" value="{{ $user->login_at }}" disabled="">
+                                </div>
+                                
+                                <div id="msgGererate" class="mt-3 items-center p-3 rounded text-white font-bold bg-danger"
+                                style="display: none">
+                                </div>
+                            </div>
+                        </form>
                     </div>
-
-                    <div class="col-md-9 border-right">
-                        <div id="infoContainer">
-                            <form class="form-container" id="form1">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="name">Tên:</label>
-                                            <input type="text" class="form-control" id="name" name="name"
-                                                value="{{ auth()->user()->name ?? '' }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="phone">Số điện thoại:</label>
-                                            <input type="text" class="form-control" id="phone" name="phone"
-                                                value="{{ auth()->user()->phone ?? '' }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="email">Email:</label>
-                                            <input type="email" class="form-control" id="email" name="email"
-                                                value="{{ auth()->user()->email ?? '' }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="note">Ghi chú:</label>
-                                            <input type="text" class="form-control" id="note" name="note"
-                                                value="{{ auth()->user()->note ?? '' }}">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-12">
-                                        <label for="address">Địa chỉ:<small class="text-red">*</small></label>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <select name="tinhthanh" id="tinhthanh" class="form-control select2" required>
-                                                <option value="">-Chọn tỉnh/thành phố-</option>
-                                                <?php foreach($listProvince as $province){ ?>
-                                                <option value="{{ $province->s_code }}"
-                                                    {{ isset($user->json_params->province_id) && $province->s_code == $user->json_params->province_id ? 'selected' : '' }}>
-                                                    {{ $province->name }}</option>
-                                                <?php } ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <select name="quanhuyen" id="quanhuyen" class="form-control select2" required>
-                                                @if (isset($user->json_params->district_id))
-                                                    <option value="{{ $user->json_params->district_id }}">
-                                                        {{ $user->json_params->district_name }}</option>
-                                                @else
-                                                    <option value="">-Chọn quận/huyện-</option>
-                                                @endif
-
-                                                {{-- <option value="">-Chọn quận/huyện-</option>
-												@foreach ($listDistrict as $item)
-													<option value="{{ $item->s_code }}"
-														{{ $item->s_code == $user->json_params->district_id ? 'selected' : '' }}>
-														{{ $item->name }}
-													</option>
-												@endforeach --}}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <select name="xaphuong" id="xaphuong" class="form-control select2" required>
-                                                @if (isset($user->json_params->ward_id))
-                                                    <option value="{{ $user->json_params->ward_id }}">
-                                                        {{ $user->json_params->ward_name }}</option>
-                                                @else
-                                                    <option value="">-Chọn xã/ phường-</option>
-                                                @endif
-                                                {{-- <option value="">-Chọn xã/ phường-</option>
-												@foreach ($listWard as $item)
-													<option value="{{ $item->s_code }}"
-														{{ $item->s_code == $user->json_params->ward_id ? 'selected' : '' }}>
-														{{ $item->name }}
-													</option>
-												@endforeach --}}
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="txt_xaphuong" id="txt_xaphuong"
-                                        value="{{ $user->json_params->ward_name ?? '' }}">
-                                    <input type="hidden" name="txt_quanhuyen" id="txt_quanhuyen"
-                                        value="{{ $user->json_params->district_name ?? '' }}">
-                                    <input type="hidden" name="txt_tinhthanh" id="txt_tinhthanh"
-                                        value="{{ $user->json_params->provice_name ?? '' }}">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="address">Chi tiết:</label>
-                                            <input type="text" class="form-control" id="address" name="address"
-                                                value="{{ auth()->user()->address ?? '' }}">
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn btn-primary btn-submit"
-                                    onclick="submitInfor()">Lưu</button>
-                            </form>
-                            <form class="form-container" id="form2">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="old-password">Mật khẩu cũ:</label>
-                                            <input type="password" class="form-control" id="old-password"
-                                                name="old-password">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="new-password">Mật khẩu mới:</label>
-                                            <input type="password" class="form-control" id="new-password"
-                                                name="new-password">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label for="confirm-password">Nhập lại mật khẩu:</label>
-                                            <input type="password" class="form-control" id="confirm-password"
-                                                name="confirm-password">
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-submit">Lưu</button>
-                            </form>
-
-                            <div class="form-container" id="form3">
-                                @include('frontend.pages.user.partials_favorites', [
-                                    'listDocuments',
-                                    $listDocuments,
-                                ])
+                    </div>
+                    <div class="card mb-2">
+                    <div class="card-body">
+                        <h4 class="card-title">
+                        Thay Đổi Mật Khẩu
+                        </h4>
+                        <div>
+                        <form class="space-y-7 form-container" id="form2">
+                            @csrf
+                            <div class="form-group row mb-2">
+                            <div class="col-md-4">
+                                <label for="username">
+                                Mật Khẩu Hiện Tại
+                                <span class="text-danger">
+                                    (*)
+                                </span>
+                                </label>
+                                <input type="password" class="form-control" id="old-password" name="old-password">
                             </div>
-                            <div class="form-container" id="form4">
-                                <div class="btn-group" role="group"
-                                    style="display: flex; justify-content: space-between;">
-                                    {{-- @foreach (App\Consts::ORDER_STATUS as $key => $item)
-										<button type="button" class="btn btn-order" onclick="loadOrders('{{ $key }}')">{{ $item }}</button>
-									@endforeach --}}
-                                    <button type="button" class="btn btn-order" onclick="loadOrders('pending')">Chờ
-                                        duyệt</button>
-                                    <button type="button" class="btn btn-order"
-                                        onclick="loadOrders('reject')">Hủy</button>
-                                    <button type="button" class="btn btn-order click"
-                                        onclick="loadOrders('complete')">Hoàn thành</button>
-                                    <button type="button" class="btn btn-order" onclick="loadOrders('delivery')">Đang
-                                        giao</button>
-                                </div>
-
-                                <div id="orders-table" class="mt-3">
-                                    @include('frontend.pages.user.partials_order_tracking')
+                            <div class="col-md-4">
+                                <label for="username">
+                                Mật Khẩu Mới
+                                <span class="text-danger">
+                                    (*)
+                                </span>
+                                </label>
+                                <input type="password" class="form-control" id="new-password" name="new-password">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="username">
+                                Nhập Lại Mật Khẩu Mới
+                                <span class="text-danger">
+                                    (*)
+                                </span>
+                                </label>
+                                <input type="password" class="form-control" id="confirm-password" name="confirm-password">
+                                <br>
+                                <button type="submit" class="btn btn-primary w-full" id="ChangePassword">
+                                Thay Đổi
+                                </button>
+                                <div id="msgChangePassword" class="mt-2 items-center p-3 rounded text-white font-bold bg-danger"
+                                style="display: none">
                                 </div>
                             </div>
-
-                            <div class="form-container" id="form5">
-                                <div class="mt-3">
-                                    @include('frontend.pages.user.buy_ebook', ['buyEbook', $buyEbook])
-                                </div>
                             </div>
-
-                            <div class="form-container" id="form6">
-                                <div class="mt-3">
-                                    @include('frontend.pages.user.recharge_user')
-                                </div>
-                            </div>
-
-                            <div class="form-container" id="form7">
-                                <div class="btn-group" role="group"
-                                    style="display: flex; justify-content: space-between;">
-                                    <button type="button" class="btn btn-order-2"
-                                        onclick="loadBanthao('chosogiayphep')">Chờ số
-                                        giấy phép</button>
-                                    <button type="button" class="btn btn-order-2"
-                                        onclick="loadBanthao('choqdcapphep')">Chờ QĐ
-                                        cấp phép</button>
-                                    <button type="button" class="btn btn-order-2 click"
-                                        onclick="loadBanthao('choluuchieu')">Chờ lưu chiểu</button>
-                                    <button type="button" class="btn btn-order-2" onclick="loadBanthao('phathanh')">Phát
-                                        hành</button>
-                                    <button type="button" class="btn btn-order-2" onclick="loadBanthao('thuhoi')">Thu
-                                        hồi</button>
-                                </div>
-
-                                <div id="banthao-table" class="mt-3">
-                                    @include('frontend.pages.user.banthao')
-                                </div>
-                            </div>
+                        </form>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
-    </main>
+    </section>
+
+
 @endsection
 
 

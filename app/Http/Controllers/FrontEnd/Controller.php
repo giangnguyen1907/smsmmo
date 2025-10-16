@@ -23,9 +23,10 @@ class Controller extends BaseController
 
     // Part to views for Controller
     protected $viewPart;
+    protected $apitoken;
     // Data response to view
     protected $responseData = [];
-
+    protected $web_information = [];
 
     public function __construct()
     {
@@ -37,6 +38,8 @@ class Controller extends BaseController
                 $this->web_information->{$option->option_name} = json_decode($option->option_value);
             }
             $this->responseData['web_information'] = $this->web_information;
+            $this->apitoken = $this->web_information->information->apitoken ?? '';
+            // dd($this->apitoken);
         }
     }
 
@@ -70,6 +73,8 @@ class Controller extends BaseController
 		
 		$this->responseData['languages'] = $languages;
         $this->responseData['locale'] = App::getLocale();
+        
+        $this->responseData['apitoken'] = $this->apitoken;
 
         $taxonomy_all = ContentService::getCmsTaxonomy(['status' => 'active', 'order_by' => ['iorder' => 'ASC']])->get();
 		

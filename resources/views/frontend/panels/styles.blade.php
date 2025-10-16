@@ -218,4 +218,38 @@
     margin-bottom: 10px;
     border: 0;
     border-top: 2px solid #f5c5c5;}
+  
+  .card {
+    word-wrap: break-word;
+    background-clip: border-box;
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: .25rem;
+    flex-direction: column;
+    min-width: 0;
+    position: relative;
+}
+.card-header {
+    background-color: rgba(0, 0, 0, .03);
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
+    margin-bottom: 0;
+    padding: .75rem 1.25rem;
+}
+.card-body {
+    flex: 1 1 auto;
+    min-height: 1px;
+    padding: 10px;
+}
+.status-0 {
+    background: #ffc107;
+    color: #fff;
+}
+.confirm {
+    background: #28a745;
+    color: white;
+}
+.cancel {
+    background: #dc3545;
+    color: white;
+}
 </style>
