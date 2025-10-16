@@ -91,6 +91,7 @@ Route::group(['namespace' => 'Admin'], function () {
             'manage_project' => 'CmsManageProjectController',
             'history_buyebook' => 'CmsHistoryBuyebookController',
             'cms_banthao' => 'BanthaoController',
+            'services' => 'ServiceController'
         ]);
 
         Route::post('export-word/{id}', 'BanthaoController@exportWord')->name('cms_banthao.export_word');
