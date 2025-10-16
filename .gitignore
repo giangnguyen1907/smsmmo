@@ -3,4 +3,5 @@
 /vendor
 /storage/framework
 /storage/logs
+/bootstrap/cache
 .env

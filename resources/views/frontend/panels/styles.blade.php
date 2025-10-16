@@ -214,5 +214,8 @@
     background: #c9eada !important;
   }
   .select2 {width: 100%!important}
-
+  hr.hr-customer {margin-top: 10px;
+    margin-bottom: 10px;
+    border: 0;
+    border-top: 2px solid #f5c5c5;}
 </style>
