@@ -393,6 +393,10 @@ class UsersController extends Controller
         return $this->responseView('frontend.pages.user.index');
         
     }
+    public function showRegisterForm()
+    {   
+        return $this->responseView('frontend.pages.register');
+    }
 
     public function register(Request $request)
     {

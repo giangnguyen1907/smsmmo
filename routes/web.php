@@ -36,6 +36,7 @@ Route::namespace('FrontEnd')->group(function () {
   
   Route::get('/login', 'LoginController@index')->name('frontend.login');
   Route::post('/login-post', 'LoginController@login')->name('frontend.login.post');
+  Route::get('/register', 'UsersController@showRegisterForm')->name('frontend.register.index');
   Route::post('/register', 'UsersController@register')->name('frontend.register');
   Route::get('/logout', 'LoginController@logout')->name('frontend.logout');
   //Quên mật khẩu

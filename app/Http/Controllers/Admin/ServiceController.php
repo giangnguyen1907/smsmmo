@@ -25,9 +25,6 @@ class ServiceController extends Controller
         return $this->responseView($this->viewPart . '.index');
     }
 
-
-
-
     // Form thêm dịch vụ
     public function create()
     {
@@ -39,34 +36,42 @@ class ServiceController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price_per_unit' => 'required|numeric|min:0',
         ]);
 
         Service::create([
             'name' => $request->name,
-            'price' => $request->price,
+            'price_per_unit' => $request->price_per_unit,
+            'description' => $request->description,
+            'duration_minutes' => $request->duration_minutes
         ]);
 
         return redirect()->route($this->routeDefault . '.index')->with('successMessage', __('Add new successfully!'));
     }
 
     // Form chỉnh sửa dịch vụ
-    public function edit(Service $service)
-    {
-         return $this->responseView($this->viewPart . '.edit');
-    }
+        public function edit(Service $service)
+        {
+            $this->responseData['service'] = $service;
+            return $this->responseView($this->viewPart . '.edit');
+        }
+
+
 
     // Cập nhật dịch vụ
     public function update(Request $request, Service $service)
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
+            'price_per_unit' => 'required|numeric|min:0',
         ]);
+
 
         $service->update([
             'name' => $request->name,
-            'price' => $request->price,
+            'price_per_unit' => $request->price_per_unit,
+            'description' => $request->description,
+            'duration_minutes' => $request->duration_minutes
         ]);
 
         return redirect()->back()->with('successMessage', __('Successfully updated!'));

@@ -12,7 +12,7 @@
           </a>
         </li>
         <li class="">
-          <a href="#">
+          <a href="{{ route('frontend.register.index') }}">
             <i class="fa fa-user-circle"></i> <span>Đăng Ký</span>
           </a>
         </li>
@@ -23,7 +23,7 @@
             <i class="fa fa-sign-in"></i> <span> {{ Auth::user()->name ?? 'Người dùng' }}</span>
           </a>
         </li>
-        
+
       @endauth
         <hr class="hr-customer">
 

@@ -56,46 +56,38 @@
                 <table class="table table-hover table-bordered">
                     <thead>
                         <tr>
-                            <th>@lang('Category')</th>
                             <th>@lang('Title')</th>
                             <th>@lang('Brief')</th>
                             <th>@lang('Price')</th>
-                            <th>@lang('Order')</th>
-                            <th>@lang('Status')</th>
+                            <th>@lang('Thời lượng (phút)')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
                     <tbody>
-                        
+
                         @foreach ($services as $service)
                         <form action="{{ route('services.destroy', $service->id) }}" method="POST" onsubmit="return confirm('@lang('confirm_action')')">
                             <tr class="valign-middle bg-gray-light">
-                                <td>
-                                    <?php $json_title = json_decode($service->json_title); ?>
-                                    {{ $json_title->$locale ?? '' }}
-                                </td>
+                            
                                 <td>
                                     <input onkeyup="saveService({{ $service->id }})"
-                                        id="title_{{ $service->id }}" value="{{ $service->title }}"
+                                        id="title_{{ $service->id }}" value="{{ $service->name }}"
                                         class="form-control" />
                                 </td>
                                 <td>
                                     <input onkeyup="saveService({{ $service->id }})"
-                                        id="brief_{{ $service->id }}" value="{{ $service->brief }}"
+                                        id="brief_{{ $service->id }}" value="{{ $service->description }}"
                                         class="form-control" />
                                 </td>
                                 <td>
                                     <input onkeyup="saveService({{ $service->id }})"
-                                        id="price_{{ $service->id }}" value="{{ $service->price }}"
+                                        id="price_{{ $service->id }}" value="{{ $service->price_per_unit }}"
                                         class="form-control" />
                                 </td>
                                 <td>
                                     <input onkeyup="saveService({{ $service->id }})"
-                                        id="iorder_{{ $service->id }}" value="{{ $service->iorder ?? '' }}"
-                                        class="form-control" style="width: 80px" />
-                                </td>
-                                <td>
-                                    @lang($service->status)
+                                        id="price_{{ $service->id }}" value="{{ $service->duration_minutes }}"
+                                        class="form-control" />
                                 </td>
                                 <td>
                                     <a class="btn btn-sm btn-primary" onclick="saveService({{ $service->id }})" href="javascript:;">
