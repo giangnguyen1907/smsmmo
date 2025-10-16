@@ -116,6 +116,21 @@
                                             </div>
                                           </div>
 
+                                          <div class="form-group">
+                                                    <label>@lang('Status')</label>
+                                                    <div class="form-control">
+                                                        <label>
+                                                            <input type="radio" name="status" value="1" checked="">
+                                                            <small>@lang('active')</small>
+                                                        </label>
+                                                        <label>
+                                                            <input type="radio" name="status" value="0"
+                                                                class="ml-15">
+                                                            <small>@lang('deactive')</small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+
                                     </div>
 
                                     <div class="col-md-12">

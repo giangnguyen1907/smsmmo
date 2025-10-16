@@ -5,12 +5,15 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\RentHistory;
-
+use App\Models\Service;
+use App\Jobs\FetchBossOtpServices;
+use Illuminate\Support\Facades\Http;
 
 class ServiceController extends Controller
 {
   public function rentSim(Request $request)
-    {
+    {   
+        FetchBossOtpServices::dispatch();
         $sims = collect([
             (object) ['id'=>1,'network'=>'Viettel','service'=>'Facebook','number'=>'0987123456','price'=>3000,'status'=>'available'],
             (object) ['id'=>2,'network'=>'Mobifone','service'=>'Zalo','number'=>'0905123456','price'=>3500,'status'=>'rented'],
@@ -18,6 +21,7 @@ class ServiceController extends Controller
             (object) ['id'=>4,'network'=>'Vietnamobile','service'=>'Shopee','number'=>'0923456789','price'=>2800,'status'=>'available'],
             (object) ['id'=>5,'network'=>'Viettel','service'=>'Tiktok','number'=>'0987234567','price'=>3200,'status'=>'available'],
         ]);
+
 
         // Nhận giá trị lọc
         $keyword = trim($request->get('keyword', ''));
@@ -52,6 +56,9 @@ class ServiceController extends Controller
             $currentPage,
             ['path' => request()->url(), 'query' => request()->query()]
         );
+        $services = Service::where('status', 1)
+                   ->orderBy('id', 'desc')
+                   ->get();
 
         // Trả về view
         return view('frontend.services.rent-sim', [
@@ -60,19 +67,69 @@ class ServiceController extends Controller
             'network' => $network,
             'service' => $service,
             'prefix' => $prefix,
+            'services' => $services 
         ]);
     }
 
-    public function rentSimcreate(Request $request)
-    {
-        // Xử lý dữ liệu thuê sim
-        // (ở đây demo trả JSON)
+    
+public function rentSimcreate(Request $request)
+{   
+    if (!Auth::check()) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Bạn cần đăng nhập để thuê sim.'
+        ]);
+    } 
+    $user = Auth::user();
+    $serviceId = $request->input('service_id');
+    $network = $request->input('network') ?? ''; // nếu có chọn nhà mạng
+    $apiKey = env('BOSSOTP_API_KEY');
+    try {
+        // Gọi API tới trung gian thuê sim
+        $response = Http::get('https://api.bossotp.net/api/v4/rents/create', [
+            'api_token' => $apiKey,
+            'service_id' => $serviceId,
+            'network' => $network,
+        ]);
+    // dd($response);
+      
+        $data = $response->json();
+        // dd($data);
+        if (!$response->successful() || empty($data['success']) || !$data['success']) {
+            return response()->json([
+                'success' => false,
+                'message' => $data['message'] ?? 'Không thể thuê sim, vui lòng thử lại sau.',
+            ]);
+        }
+         
+        // Lưu lịch sử thuê sim
+        $history = RentHistory::create([
+            'user_id'   => $user->id,
+            'service'   => $serviceId,
+            'number'    => $data['number'] ?? null,
+            'order_id'  => $data['id'] ?? null,
+            'status'    => 'pending',
+            'price'     => $data['price'] ?? 0,
+        ]);
+
         return response()->json([
             'success' => true,
             'message' => 'Thuê sim thành công!',
-            'data' => $request->all(),
+            'data' => [
+                'number' => $data['number'],
+                'service' => $serviceId,
+                'order_id' => $data['id'],
+                'history_id' => $history->id,
+            ],
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
         ]);
     }
+}
 
 
 
@@ -119,8 +176,10 @@ class ServiceController extends Controller
 
         // danh sách select options để view dùng
         $networks = ['Viettel','Mobifone','Vinaphone','Vietnamobile'];
-        $services = ['Facebook','Zalo','Telegram','Shopee','Tiktok'];
         $prefixes = ['090','091','092','098','097'];
+        $services = Service::where('status', 1)
+                   ->orderBy('id', 'desc')
+                   ->get();
 
         return view('frontend.services.rent-old-number', [
             'oldNumbers' => $paginated,
@@ -152,8 +211,10 @@ class ServiceController extends Controller
             })
             ->orderByDesc('id')
             ->paginate(10);
-
-        return view('frontend.services.rent-history', compact('histories'));
+          $services = Service::where('status', 1)
+                   ->orderBy('id', 'desc')
+                   ->get();
+        return view('frontend.services.rent-history', compact('histories','services'));
     }
 
     /**
@@ -162,7 +223,9 @@ class ServiceController extends Controller
     public function rechargeSim(Request $request)
 {
     $user = Auth::user();
-
+ if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
     // Xử lý form nạp tiền
     if ($request->isMethod('post')) {
         $amount = (int) $request->input('amount');
@@ -230,7 +293,10 @@ class ServiceController extends Controller
     return view('frontend.services.recharge-sim', compact('activeSims', 'recharges'));
 }
  public function create101(Request $request)
-    {
+    {   
+         if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
         // Giả lập data
         $images = collect([
             (object) ['id'=>1, 'title'=>'Ảnh 101# 1', 'status'=>'active', 'created_at'=>'2025-10-16'],
@@ -267,7 +333,10 @@ class ServiceController extends Controller
 
     // Trang ảnh gửi tin nhắn
     public function sendMessageImg(Request $request)
-    {
+    {   
+         if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
         $messages = collect([
             (object) ['id'=>1, 'number'=>'0987123456', 'content'=>'Test message', 'status'=>'sent', 'created_at'=>'2025-10-16'],
             (object) ['id'=>2, 'number'=>'0905123456', 'content'=>'Hello world', 'status'=>'pending', 'created_at'=>'2025-10-16'],
@@ -301,7 +370,10 @@ class ServiceController extends Controller
     }
 
     public function rechargeAccount(Request $request)
-    {
+    {   
+         if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
         if ($request->isMethod('post')) {
             $user = Auth::user();
             $amount = (int) $request->input('amount');

@@ -57,9 +57,9 @@
                     <thead>
                         <tr>
                             <th>@lang('Title')</th>
-                            <th>@lang('Brief')</th>
                             <th>@lang('Price')</th>
                             <th>@lang('Thời lượng (phút)')</th>
+                            <th>@lang('Status')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
@@ -72,22 +72,21 @@
                                 <td>
                                     <input onkeyup="saveService({{ $service->id }})"
                                         id="title_{{ $service->id }}" value="{{ $service->name }}"
-                                        class="form-control" />
+                                        class="form-control" disabled  />
                                 </td>
-                                <td>
-                                    <input onkeyup="saveService({{ $service->id }})"
-                                        id="brief_{{ $service->id }}" value="{{ $service->description }}"
-                                        class="form-control" />
-                                </td>
+                        
                                 <td>
                                     <input onkeyup="saveService({{ $service->id }})"
                                         id="price_{{ $service->id }}" value="{{ $service->price_per_unit }}"
-                                        class="form-control" />
+                                        class="form-control" disabled />
                                 </td>
                                 <td>
                                     <input onkeyup="saveService({{ $service->id }})"
                                         id="price_{{ $service->id }}" value="{{ $service->duration_minutes }}"
-                                        class="form-control" />
+                                        class="form-control" disabled />
+                                </td>
+                               <td>
+                                    {{ $service->status == 1 ? 'Hoạt động' : 'Không hoạt động' }}
                                 </td>
                                 <td>
                                     <a class="btn btn-sm btn-primary" onclick="saveService({{ $service->id }})" href="javascript:;">

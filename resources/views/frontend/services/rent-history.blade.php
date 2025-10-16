@@ -27,10 +27,9 @@
           <div class="col-md-3 mb-2">
             <select name="service" class="form-control">
               <option value="">-- Chọn dịch vụ --</option>
-              <option value="Facebook" {{ request('service')=='Facebook' ? 'selected' : '' }}>Facebook</option>
-              <option value="Zalo" {{ request('service')=='Zalo' ? 'selected' : '' }}>Zalo</option>
-              <option value="Telegram" {{ request('service')=='Telegram' ? 'selected' : '' }}>Telegram</option>
-              <option value="Shopee" {{ request('service')=='Shopee' ? 'selected' : '' }}>Shopee</option>
+                @foreach($services as $key => $ser)
+                                <option value="{{ $ser->service_id }}" data-price="{{ $ser->price_per_unit }}">{{ $ser->name }}</option>
+                                @endforeach
             </select>
           </div>
 

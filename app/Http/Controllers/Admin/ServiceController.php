@@ -20,7 +20,7 @@ class ServiceController extends Controller
     // Hiển thị danh sách dịch vụ
     public function index()
     {
-        $services = Service::orderBy('id', 'desc')->paginate(10);
+        $services = Service::orderBy('id', 'desc')->paginate(30);
         $this->responseData['services'] = $services;
         return $this->responseView($this->viewPart . '.index');
     }
@@ -38,11 +38,11 @@ class ServiceController extends Controller
             'name' => 'required|string|max:255',
             'price_per_unit' => 'required|numeric|min:0',
         ]);
-
         Service::create([
             'name' => $request->name,
             'price_per_unit' => $request->price_per_unit,
             'description' => $request->description,
+            'status' => $request->status === 'active' ? 1 : 0,
             'duration_minutes' => $request->duration_minutes
         ]);
 
@@ -71,6 +71,7 @@ class ServiceController extends Controller
             'name' => $request->name,
             'price_per_unit' => $request->price_per_unit,
             'description' => $request->description,
+            'status' => $request->status === 'active' ? 1 : 0,
             'duration_minutes' => $request->duration_minutes
         ]);
 

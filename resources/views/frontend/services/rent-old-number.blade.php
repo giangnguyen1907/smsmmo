@@ -23,16 +23,9 @@
             <label>🥷 Chọn Dịch Vụ <span class="text-danger">*</span></label>
            <select id="DichVuSim" name="DichVuSim" class="form-control">
               <option value="">-- Chọn dịch vụ --</option>
-                                <option value="4" data-price="18000">Gửi SMS - VIP2 (Viettel) - (18.000đ) - Live 10 phút</option>
-                                <option value="6" data-price="17000">Gửi SMS - VIP1 (Mạng Khác) - (17.000đ) - Live 15 phút</option>
-                                <option value="29" data-price="10000">Nhận ALL GAME - (10.000đ) - Live 5 phút</option>
-                                <option value="37" data-price="10000">Nhận - OKVIP2 - 789BET - (10.000đ) - Live 5 phút</option>
-                                <option value="11" data-price="10000">Nhận - OKVIP - (10.000đ) - Live 5 phút</option>
-                                <option value="89" data-price="20000">CuocGoi 5day (Chuyển cuộc gọi) - (20.000đ) - Live 10 phút</option>
-                                <option value="33" data-price="10000">DV KHÁC - (10.000đ) - Live 8.3 phút</option>
-                                <option value="81" data-price="3000">Facebook - (3.000đ) - Live 6 phút</option>
-                                <option value="83" data-price="15000">Telegram - (15.000đ) - Live 8 phút</option>
-                                <option value="84" data-price="20000">Zalopc - (20.000đ) - Live 10 phút</option>
+                                  @foreach($services as $key => $ser)
+                                <option value="{{ $ser->service_id }}" data-price="{{ $ser->price_per_unit }}">{{ $ser->name }}</option>
+                                @endforeach
             </select>
           </div>
 

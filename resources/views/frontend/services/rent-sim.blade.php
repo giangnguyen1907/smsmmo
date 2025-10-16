@@ -4,7 +4,8 @@
 <section class="content">
   <div class="box box-primary">
     {{-- Form tìm kiếm --}}
-     <form action="{{ route('frontend.service.rent-sim') }}" method="GET">
+     <form action="{{ route('rentsim.create') }}" method="POST">
+      @csrf
       <div class="box-header pb-3">
         <h3 class="box-title mb-3"><i class="fa fa-sim-card"></i> Thuê sim nhanh </h3>
         <div class="row box-body table-responsive">
@@ -25,16 +26,9 @@
           <div class="col-md-4 mb-2">
             <select id="DichVuSim" name="DichVuSim" class="form-control">
               <option value="">-- Chọn dịch vụ --</option>
-                                <option value="4" data-price="18000">Gửi SMS - VIP2 (Viettel) - (18.000đ) - Live 10 phút</option>
-                                <option value="6" data-price="17000">Gửi SMS - VIP1 (Mạng Khác) - (17.000đ) - Live 15 phút</option>
-                                <option value="29" data-price="10000">Nhận ALL GAME - (10.000đ) - Live 5 phút</option>
-                                <option value="37" data-price="10000">Nhận - OKVIP2 - 789BET - (10.000đ) - Live 5 phút</option>
-                                <option value="11" data-price="10000">Nhận - OKVIP - (10.000đ) - Live 5 phút</option>
-                                <option value="89" data-price="20000">CuocGoi 5day (Chuyển cuộc gọi) - (20.000đ) - Live 10 phút</option>
-                                <option value="33" data-price="10000">DV KHÁC - (10.000đ) - Live 8.3 phút</option>
-                                <option value="81" data-price="3000">Facebook - (3.000đ) - Live 6 phút</option>
-                                <option value="83" data-price="15000">Telegram - (15.000đ) - Live 8 phút</option>
-                                <option value="84" data-price="20000">Zalopc - (20.000đ) - Live 10 phút</option>
+                                @foreach($services as $key => $ser)
+                                <option value="{{ $ser->service_id }}" data-price="{{ $ser->price_per_unit }}">{{ $ser->name }}</option>
+                                @endforeach
             </select>
           </div>
 
@@ -53,14 +47,9 @@
           <div class="col-md-4">
                             <select id="prefixs" name="prefixs[]" size="1" class="form-control">
                               <option value="">Chọn đầu số</option>
-                                <option value="32">32</option>
-                                <option value="33">33</option>
-                                <option value="34">34</option>
-                                <option value="35">35</option>
-                                <option value="36">36</option>
-                                <option value="37">37</option>
-                                <option value="38">38</option>
-                                <option value="39">39</option>
+                            @for ($i = 32; $i <= 99; $i++)
+                                <option value="{{ $i }}">{{ $i }}</option>
+                            @endfor
                             </select>
             </div>
 
@@ -123,7 +112,7 @@
           <i class="fa fa-info-circle"></i> Không tìm thấy sim khả dụng!
         </div>
       @else
-        <table class="table table-hover table-bordered">
+        <!-- <table class="table table-hover table-bordered">
           <thead class="bg-light">
             <tr>
               <th>ID</th>
@@ -167,7 +156,7 @@
               </tr>
             @endforeach
           </tbody>
-        </table>
+        </table> -->
       @endif
     </div>
 
@@ -180,7 +169,7 @@
   </div>
 
   {{-- Modal xác nhận thuê sim --}}
-  <div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
+  <!-- <div class="modal fade" id="rentModal" tabindex="-1" aria-labelledby="rentModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">
@@ -198,7 +187,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <!-- {{-- Khu vực hiển thị OTP --}}
   <div id="otpSection" class="mt-3 d-none">
@@ -212,7 +201,27 @@
 </section>
 
 @push('scripts')
-     
+<script>
+  $('#btnRentSim').click(function() {
+    const serviceId = $('#service_id').val();
+    $.ajax({
+        url: '/rent-sim/create',
+        type: 'POST',
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            service_id: serviceId
+        },
+        success: function(res) {
+            if (res.success) {
+                alert(res.message + '\nSố thuê: ' + res.data.number);
+            } else {
+                alert('Lỗi: ' + res.message);
+            }
+        }
+    });
+});
+
+</script>     
 
 @endpush
 <style>
