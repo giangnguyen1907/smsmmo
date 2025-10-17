@@ -40,4 +40,8 @@ return [
         'client_secret' => env('FACEBOOK_CLIENT_SECRET'),
         'redirect' => env('REDIRECT_FACEBOOK'), //'http://127.0.0.1:8002/callback/facebook',
     ], 
+    'bossotp' => [
+    'key' => env('BOSSOTP_API_KEY', ''),
+    ],
+
 ];

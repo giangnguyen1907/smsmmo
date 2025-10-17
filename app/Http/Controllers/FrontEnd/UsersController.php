@@ -44,7 +44,7 @@ class UsersController extends Controller
         }
 
         $historyRecharge = CmsHistoryRechargeuser::create([
-            'recharge_info' => $recharge_info,
+            'recharge_info' => $trans_code_transfer,
             'customer_id' => Auth::user()->id,
             'payment' => $amount_payment,
         ]);
@@ -392,6 +392,10 @@ class UsersController extends Controller
         //print_r($params);die;
         return $this->responseView('frontend.pages.user.index');
         
+    }
+    public function showRegisterForm()
+    {   
+        return $this->responseView('frontend.pages.register');
     }
 
     public function register(Request $request)

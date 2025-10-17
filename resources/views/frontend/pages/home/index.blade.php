@@ -2,25 +2,41 @@
 
 @section('content')
 <section class="content">
-    
-    <?php
-    foreach($blocksContent as $banner){
-    if($banner->block_code == 'main'){ ?>
-
-    <div class="box box-default collapsed-box">
-
-        <div class="box-header with-border">
-            <h3 class="box-title">{{$banner->title}}</h3>
-            <div class="box-tools pull-right">
-                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-plus"></i></button>
-            </div>
+    <div class="box box-primary">
+        <div class="alert bg-danger text-white">
+            <div>{!! $translates[1] ?? ''!!}</div>
+            <div></div>
         </div>
-        <div class="box-body">
-            {!! $banner->content !!}
+        <div class="alert bg-danger text-white">
+            <div>{!! $translates[2] ?? ''!!}</div>
+            <div></div>
+        </div>
+        <div class="alert bg-danger text-white">
+            <div>{!! $translates[3] ?? ''!!}</div>
+            <div></div>
+        </div>
+        <div class="alert bg-danger text-white">
+            <div>{!! $translates[4] ?? ''!!}</div>
+            <div></div>
+        </div>
+        <div class="alert bg-danger text-white">
+            <div>{!! $translates[5] ?? ''!!}</div>
+            <div></div>
+        </div>
+        <div class="alert bg-danger text-white">
+            <div>{!! $translates[6] ?? ''!!}</div>
+            <div></div>
         </div>
     </div>
-
-    <?php } } ?>
-    
 </section>
+{{-- 
+<div id="popup" style="display: none;">
+    {!! $translates[8] ?? ''!!}
+    <div class="checkbox-container">
+        <input type="checkbox" id="agreeCheckbox" onchange="toggleAgreeButton()">
+        <label for="agreeCheckbox">Tôi đồng ý với các điều khoản trên.</label>
+    </div>
+    <button id="agreeBtn" class="agree-btn" disabled="" onclick="agreeToTerms()">Đồng Ý</button>
+</div> --}}
+
 @endsection

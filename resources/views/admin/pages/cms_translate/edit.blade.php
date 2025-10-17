@@ -60,24 +60,9 @@
             </div>
           </div>
           <div class="col-md-6">
-
+            
             <div class="form-group">
-             @foreach($languages as $language)
-             @php 
-                $dich = '';
-                $lang = $language->lang_code; 
-                if(isset($rows->json_param->$lang)){
-                  $dich = $rows->json_param->$lang;
-                }
-
-             @endphp
-                  <div class="col-md-2">
-                    <label for="translations[{{ $language->lang_code }}]">{{ $language->title }}:</label>
-                  </div>
-                  <div class="col-md-10">
-                    <input type="text" class="form-control" name="translations[{{ $language->lang_code }}]" placeholder="{{ $language->lang_code }}" required value="{{ $dich }}">
-                  </div>
-            @endforeach
+            <textarea name="translate" id="content" class="form-control">{{ $rows->translate }}</textarea>
             </div>
           </div>
 
@@ -94,4 +79,11 @@
       </form>
     </div>
   </section>
+@endsection
+@section('script')
+
+<script>
+    CKEDITOR.replace('content', ck_options);
+</script>
+
 @endsection

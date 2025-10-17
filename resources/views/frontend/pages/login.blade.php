@@ -1,49 +1,86 @@
 @extends('frontend.layouts.default')
 
 @section('content')
-  <div class="login-box">
-    <div class="login-logo">
-      <b>Đăng nhập</b>
-    </div>
-    <!-- /.login-logo -->
-    <div class="login-box-body">
-      <form action="{{ route('frontend.login.post') }}" method="post">
-        @csrf
-        @if (session('errorMessage'))
-          <div class="alert alert-danger alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            <h4>Alert!</h4>
-            {{ session('errorMessage') }}
+
+<section class="content">
+    <div class="box box-primary">
+      
+      <div class="card mb-2">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between myAdvertise">
+            <h4>
+              Đăng Nhập Tài Khoản
+            </h4>
           </div>
-        @endif
-        <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-          <input type="email" name="email" required class="form-control" placeholder="Email">
-
-          @if ($errors->has('email'))
-            <span class="help-block">
-              {{ $errors->first('email') }}
-            </span>
-          @endif
+          <div class="card-body">
+            <p class="text-center text-muted">
+              Nhập thông tin bên dưới
+            </p>
+            <div id="msgLogin" class="alert alert-danger d-none">
+            </div>
+            <form action="{{ route('frontend.login.post') }}" method="post" class="mb-3">
+              @csrf
+              @if (session('errorMessage'))
+                <div class="alert alert-danger alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <h4>Alert!</h4>
+                  {{ session('errorMessage') }}
+                </div>
+              @endif
+              
+              <div class="mb-3 text-start">
+                <label for="username" class="form-label">
+                  Tên Tài Khoản
+                </label>
+                <input type="text" name="email" required id="username" class="form-control" placeholder="Nhập tên tài khoản">
+                @if ($errors->has('email'))
+                  <span class="help-block">
+                    {{ $errors->first('email') }}
+                  </span>
+                @endif
+              </div>
+              <div class="mb-3 text-start">
+                <label for="password" class="form-label">
+                  Mật Khẩu
+                </label>
+                <input type="password" required name="password"  id="password" class="form-control" placeholder="Nhập mật khẩu">
+                @if ($errors->has('password'))
+                  <span class="help-block">
+                    {{ $errors->first('password') }}
+                  </span>
+                @endif
+              </div>
+              <div class="mb-3 form-check text-start">
+                <input type="checkbox" class="form-check-input" id="remember">
+                <label class="form-check-label" for="remember">
+                  Ghi nhớ đăng nhập
+                </label>
+              </div>
+              <button type="submit" id="LoginTK" class="btn btn-primary w-100">
+                Đăng Nhập Ngay
+              </button>
+              @php
+                $referer = request()->headers->get('referer');
+              @endphp
+              <input type="hidden" name="url" value="{{ $referer }}">
+            </form>
+            <div class="mb-3 forgot-password">
+              <a href="{{$web_information->information->contact}}">
+                Quên mật khẩu?
+              </a>
+            </div>
+            <div class="mb-3 signup-link">
+              Bạn chưa có tài khoản?
+              <a href="{{ route('frontend.register') }}">
+                Tạo tài khoản mới
+              </a>
+            </div>
+          </div>
         </div>
-        <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
-          <input type="password" required name="password" class="form-control" placeholder="Password">
+      </div>
 
-          @if ($errors->has('password'))
-            <span class="help-block">
-              {{ $errors->first('password') }}
-            </span>
-          @endif
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block btn-flat">
-          Sign In
-        </button>
-
-        @php
-          $referer = request()->headers->get('referer');
-        @endphp
-        <input type="hidden" name="url" value="{{ $referer }}">
-      </form>
     </div>
-  </div>
+
+</section>
+
 @endsection

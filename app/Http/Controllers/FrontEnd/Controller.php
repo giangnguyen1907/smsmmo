@@ -6,6 +6,7 @@ use App\Consts;
 use App\Http\Services\ContentService;
 use App\Http\Services\PageBuilderService;
 use App\Models\CmsTaxonomy;
+use App\Models\CmsTranslate;
 use App\Models\Popup;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -27,6 +28,7 @@ class Controller extends BaseController
     // Data response to view
     protected $responseData = [];
     protected $web_information = [];
+    protected $translates = [];
 
     public function __construct()
     {
@@ -41,6 +43,8 @@ class Controller extends BaseController
             $this->apitoken = $this->web_information->information->apitoken ?? '';
             // dd($this->apitoken);
         }
+        $this->translates = CmsTranslate::pluck('translate','id')->toArray();
+        // dd($this->translates);
     }
 
     /**

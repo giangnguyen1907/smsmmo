@@ -27,10 +27,9 @@
           <div class="col-md-3 mb-2">
             <select name="service" class="form-control">
               <option value="">-- Chọn dịch vụ --</option>
-              <option value="Facebook" {{ request('service')=='Facebook' ? 'selected' : '' }}>Facebook</option>
-              <option value="Zalo" {{ request('service')=='Zalo' ? 'selected' : '' }}>Zalo</option>
-              <option value="Telegram" {{ request('service')=='Telegram' ? 'selected' : '' }}>Telegram</option>
-              <option value="Shopee" {{ request('service')=='Shopee' ? 'selected' : '' }}>Shopee</option>
+                @foreach($services as $key => $ser)
+                <option value="{{ $ser->service_id }}" data-price="{{ $ser->price_per_unit }}">{{ $ser->name }}</option>
+                @endforeach
             </select>
           </div>
 
@@ -80,7 +79,6 @@
           <thead class="bg-light">
             <tr>
               <th>ID</th>
-              <th>Nhà mạng</th>
               <th>Dịch vụ</th>
               <th>Số thuê</th>
               <th>Giá</th>
@@ -89,12 +87,11 @@
             </tr>
           </thead>
           <tbody>
-            @foreach ($histories as $his)
+            @foreach ($histories as $key=> $his)
               <tr class="valign-middle">
-                <td>{{ $his->id }}</td>
-                <td>{{ $his->network }}</td>
-                <td>{{ $his->service }}</td>
-                <td><strong>{{ $his->number }}</strong></td>
+                <td>{{ $key+1 }}</td>
+                <td>{{ $services[$his->service_id]->name ?? '' }}</td>
+                <td><strong>{{ $his->sim_number }}</strong></td>
                 <td>{{ number_format($his->price) }} VNĐ</td>
                 <td>{{ $his->created_at ?? now()->format('Y-m-d H:i') }}</td>
                 <td>
@@ -120,7 +117,7 @@
 </section>
 
 <style>
-.box { background: #fff; border: 1px solid #ddd; border-radius: 6px; margin-top: 20px; }
+.box { background: #fff; border: 1px solid #ddd; border-radius: 6px; }
 .badge-success { background-color: #28a745; }
 .badge-danger { background-color: #dc3545; }
 .valign-middle td { vertical-align: middle !important; }

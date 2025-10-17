@@ -56,46 +56,49 @@
                 <table class="table table-hover table-bordered">
                     <thead>
                         <tr>
-                            <th>@lang('Category')</th>
+                            <th>@lang('Mã dịch vụ gốc')</th>
                             <th>@lang('Title')</th>
-                            <th>@lang('Brief')</th>
                             <th>@lang('Price')</th>
-                            <th>@lang('Order')</th>
+                            <th>@lang('Thời lượng (phút)')</th>
                             <th>@lang('Status')</th>
                             <th>@lang('Action')</th>
                         </tr>
                     </thead>
                     <tbody>
-                        
+
                         @foreach ($services as $service)
                         <form action="{{ route('services.destroy', $service->id) }}" method="POST" onsubmit="return confirm('@lang('confirm_action')')">
                             <tr class="valign-middle bg-gray-light">
                                 <td>
-                                    <?php $json_title = json_decode($service->json_title); ?>
-                                    {{ $json_title->$locale ?? '' }}
+                                    <select style="width: 100%" id="service_id_{{ $service->id }}" class="form-control select2">
+                                        @foreach($allServiceRoot as $serviceRoot)
+                                        <option value="{{$serviceRoot['_id']}}" {{$service->service_id == $serviceRoot['_id'] ? 'selected' : ''}}>{{$serviceRoot['name'].' - '.number_format($serviceRoot['price'])}}</option>
+                                        @endforeach
+                                    </select>
+                                    
                                 </td>
+
                                 <td>
-                                    <input onkeyup="saveService({{ $service->id }})"
-                                        id="title_{{ $service->id }}" value="{{ $service->title }}"
+                                    <input 
+                                        id="title_{{ $service->id }}" value="{{ $service->name }}"
+                                        class="form-control"  />
+                                </td>
+                                
+                                <td>
+                                    <input 
+                                        id="price_{{ $service->id }}" value="{{ $service->price_per_unit }}"
                                         class="form-control" />
                                 </td>
                                 <td>
-                                    <input onkeyup="saveService({{ $service->id }})"
-                                        id="brief_{{ $service->id }}" value="{{ $service->brief }}"
+                                    <input 
+                                        id="price_{{ $service->id }}" value="{{ $service->duration_minutes }}"
                                         class="form-control" />
                                 </td>
-                                <td>
-                                    <input onkeyup="saveService({{ $service->id }})"
-                                        id="price_{{ $service->id }}" value="{{ $service->price }}"
-                                        class="form-control" />
-                                </td>
-                                <td>
-                                    <input onkeyup="saveService({{ $service->id }})"
-                                        id="iorder_{{ $service->id }}" value="{{ $service->iorder ?? '' }}"
-                                        class="form-control" style="width: 80px" />
-                                </td>
-                                <td>
-                                    @lang($service->status)
+                               <td>
+                                    <select class="form-control" id="status_{{ $service->id }}">
+                                        <option value="1" {{$service->status == 1 ? 'selected' : ''}}>Hoạt động</option>
+                                        <option value="0" {{$service->status == 0 ? 'selected' : ''}}>Không HĐ</option>
+                                    </select>
                                 </td>
                                 <td>
                                     <a class="btn btn-sm btn-primary" onclick="saveService({{ $service->id }})" href="javascript:;">
@@ -134,25 +137,26 @@
 
 <script>
 function saveService(id) {
-    var title = $('#title_' + id).val();
-    var brief = $('#brief_' + id).val();
-    var price = $('#price_' + id).val();
-    var iorder = $('#iorder_' + id).val();
 
+    var title = $('#title_' + id).val();
+    var service_id = $('#service_id_' + id).val();
+    var price = $('#price_' + id).val();
+    var status = $('#status_' + id).val();
+    // alert(title+service_id+price+status);
     $.ajax({
-        url: '{{ route('cms_dichvu.save_ajax') }}',
-        type: 'POST',
+        url: '{{ route('service.save_ajax') }}',
+        type: 'GET',
         data: {
             '_token': '{{ csrf_token() }}',
             'title': title,
-            'brief': brief,
+            'service_id': service_id,
             'price': price,
-            'iorder': iorder,
+            'status': status,
             'id': id
         },
         context: document.body,
     }).done(function(data) {
-        //alert('Lưu dữ liệu thành công');
+        // alert('Lưu dữ liệu thành công');
     });
 }
 </script>

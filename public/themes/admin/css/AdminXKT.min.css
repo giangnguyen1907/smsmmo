@@ -20,11 +20,11 @@ body {
   font-weight: 400;
   overflow-x: hidden;
   overflow-y: auto;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 table {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .wrapper {
@@ -633,7 +633,7 @@ a:focus {
 .sidebar-menu .treeview-menu>li>a {
   padding: 5px 5px 5px 15px;
   display: block;
-  font-size: 13px
+  font-size: 14px
 }
 
 .sidebar-menu .treeview-menu>li>a>.fa,
@@ -1665,7 +1665,7 @@ a:focus {
 .small-box p>small {
   display: block;
   color: #f9f9f9;
-  font-size: 13px;
+  font-size: 14px;
   margin-top: 5px
 }
 
@@ -2266,7 +2266,7 @@ a:focus {
 .chat .item>.attachment>p,
 .chat .item>.attachment>.filename {
   font-weight: 600;
-  font-size: 13px;
+  font-size: 14px;
   font-style: italic;
   margin: 0
 }
@@ -3500,7 +3500,7 @@ table.text-center th {
 
 .mailbox-read-time {
   color: #999;
-  font-size: 13px
+  font-size: 14px
 }
 
 .mailbox-read-message {
@@ -5261,7 +5261,7 @@ table.text-center th {
 
 .user-block .description {
   color: #999;
-  font-size: 13px
+  font-size: 14px
 }
 
 .user-block.user-block-sm .username,
@@ -5440,7 +5440,7 @@ table.text-center th {
 }
 
 .form-control {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 label {

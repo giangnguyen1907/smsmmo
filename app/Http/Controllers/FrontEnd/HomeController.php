@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Route;
 
 class HomeController extends Controller
 {
+
+	protected $web_information;
+	protected $translates;
     /**
      * Display a listing of the resource.
      *
@@ -19,7 +22,10 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-		
+		return redirect()->route('frontend.service.rent-sim');
+
+		//dd($this->translates);
+		/*
     	if(!$request->session()->has('userOnline')){
     		//DD('AAAAA');
     		$userOnline = TbViews::select('*')->where('ngay',strtotime(date('Y-m-d')))->first();
@@ -56,9 +62,12 @@ class HomeController extends Controller
     		$request->session()->put('userOnline', $userOnline);
 
     	}
-    	
+
+		*/
+    	$web_information = $this->web_information;
+		$translates = $this->translates;
         //return redirect()->route('frontend.home')->with('successMessage', 'Thêm mới tin thành công! Tin của bạn đang được chờ duyệt');
-        return $this->responseView('frontend.pages.home.index');
+        return view('frontend.pages.home.index',compact('web_information','translates') );
         //return redirect()->route('frontend.home');
     }
 

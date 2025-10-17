@@ -1,5 +1,4 @@
 
-
 <aside class="main-sidebar">
   <!-- sidebar: style can be found in sidebar.less -->
   <section class="sidebar">
@@ -12,7 +11,7 @@
           </a>
         </li>
         <li class="">
-          <a href="#">
+          <a href="{{ route('frontend.register.index') }}">
             <i class="fa fa-user-circle"></i> <span>Đăng Ký</span>
           </a>
         </li>
@@ -28,7 +27,7 @@
             <i class="fa fa-money"></i> Số dư: <span> {{ number_format(auth()->user()->wallet)}}</span>
           </a>
         </li>
-        
+
       @endauth
         <hr class="hr-customer">
 
@@ -38,7 +37,7 @@
           </a>
         </li>
         <li class="">
-          <a href="#">
+          <a href="{{ route('frontend.history.recharge') }}">
             <i class="fa fa-history"></i> <span>Lịch sử nạp tiền</span>
           </a>
         </li>
@@ -61,7 +60,7 @@
         </li>
 
         <li>
-          <a href="#"><i class="fa fa-envelope"></i> Liên hệ & Hỗ trợ </a>
+          <a href="{{ $web_information->information->contact ?? ''}}"><i class="fa fa-envelope"></i> Liên hệ & Hỗ trợ </a>
         </li>
 
     </ul>

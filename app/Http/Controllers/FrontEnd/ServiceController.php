@@ -5,18 +5,25 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\RentHistory;
-
 use App\Models\CmsHistoryRechargeuser;
-
+use App\Models\Service;
+use App\Jobs\FetchBossOtpServices;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
 class ServiceController extends Controller
 {
+
     protected $apitoken;
     protected $web_information;
+    protected $translates;
 
     public function rentSim(Request $request)
     {
+        if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
+        $user = Auth::user();
         // // dd($this->apitoken);
         // $url = 'https://bossotp.net/api/v5/service-manager/services/me';
         // $apiToken = 'sk_D3eTBZ5GH7VwvcwNQb6NIQmFTGJNj9kR';
@@ -40,34 +47,38 @@ class ServiceController extends Controller
         //     //     'message' => $response->body()
         //     // ], $response->status());
         // }
-
-        $sims = collect([
-            (object) ['id'=>1,'network'=>'Viettel','service'=>'Facebook','number'=>'0987123456','price'=>3000,'status'=>'available'],
-            (object) ['id'=>2,'network'=>'Mobifone','service'=>'Zalo','number'=>'0905123456','price'=>3500,'status'=>'rented'],
-            (object) ['id'=>3,'network'=>'Vinaphone','service'=>'Telegram','number'=>'0912345678','price'=>2500,'status'=>'available'],
-            (object) ['id'=>4,'network'=>'Vietnamobile','service'=>'Shopee','number'=>'0923456789','price'=>2800,'status'=>'available'],
-            (object) ['id'=>5,'network'=>'Viettel','service'=>'Tiktok','number'=>'0987234567','price'=>3200,'status'=>'available'],
-        ]);
+          
+        // FetchBossOtpServices::dispatch();
+        // $sims = collect([
+        //     (object) ['id'=>1,'network'=>'Viettel','service'=>'Facebook','number'=>'0987123456','price'=>3000,'status'=>'available'],
+        //     (object) ['id'=>2,'network'=>'Mobifone','service'=>'Zalo','number'=>'0905123456','price'=>3500,'status'=>'rented'],
+        //     (object) ['id'=>3,'network'=>'Vinaphone','service'=>'Telegram','number'=>'0912345678','price'=>2500,'status'=>'available'],
+        //     (object) ['id'=>4,'network'=>'Vietnamobile','service'=>'Shopee','number'=>'0923456789','price'=>2800,'status'=>'available'],
+        //     (object) ['id'=>5,'network'=>'Viettel','service'=>'Tiktok','number'=>'0987234567','price'=>3200,'status'=>'available'],
+        // ]);
 
         // Nhận giá trị lọc
         $keyword = trim($request->get('keyword', ''));
         $network = $request->get('network', '');
-        $service = $request->get('service', '');
+        $service_id = $request->get('service_id', '');
         $prefix = $request->get('prefix', '');
 
+
+        // Danh sách sim đã thuê
+        $sims = RentHistory::where('user_id',$user->id)->get();
         // Lọc dữ liệu
-        $filtered = $sims->filter(function ($sim) use ($keyword, $network, $service, $prefix) {
+        $filtered = $sims->filter(function ($sim) use ($keyword, $network, $service_id, $prefix) {
             $match = true;
             if ($keyword) {
                 $match = $match && (
                     stripos($sim->network, $keyword) !== false ||
-                    stripos($sim->service, $keyword) !== false ||
-                    stripos($sim->number, $keyword) !== false
+                    stripos($sim->service_id, $keyword) !== false ||
+                    stripos($sim->sim_number, $keyword) !== false
                 );
             }
             if ($network) $match = $match && ($sim->network == $network);
-            if ($service) $match = $match && ($sim->service == $service);
-            if ($prefix) $match = $match && (strpos($sim->number, $prefix) === 0);
+            if ($service_id) $match = $match && ($sim->service_id == $service_id);
+            if ($prefix) $match = $match && (strpos($sim->sim_number, $prefix) === 0);
             return $match;
         });
 
@@ -82,56 +93,212 @@ class ServiceController extends Controller
             $currentPage,
             ['path' => request()->url(), 'query' => request()->query()]
         );
+        $services = Service::where('status', 1)
+                   ->orderBy('id', 'ASC')
+                   ->get();
 
         // Trả về view
         return view('frontend.services.rent-sim', [
             'sims' => $paginatedSims,
-            'keyword' => $keyword,
-            'network' => $network,
-            'service' => $service,
-            'prefix' => $prefix,
+            'services' => $services,
+            'web_information' => $this->web_information,
+            'translates' => $this->translates,
         ]);
+
+        // $this->responseData['sims'] = $sims;
+        // $this->responseData['services'] = $services;
+        // return $this->responseView('frontend.services.rent-sim');
+
     }
 
-    public function rentSimcreate(Request $request)
-    {
-        // Xử lý dữ liệu thuê sim
-        // (ở đây demo trả JSON)
-        return response()->json([
-            'success' => true,
-            'message' => 'Thuê sim thành công!',
-            'data' => $request->all(),
-        ]);
+    public function rentSimCreate(Request $request)
+    {   
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn cần đăng nhập để thuê sim.'
+            ]);
+        } 
+        $user = Auth::user();
+        $serviceId = $request->input('service_id');
+        $network = $request->input('network') ?? ''; // nếu có chọn nhà mạng
+        $prefixs = $request->input('prefixs') ?? [];
+        $price = $request->input('price') ?? '';
+        $apiKey = $this->apitoken ?? env('BOSSOTP_API_KEY');
+        try {
+
+            $listService = Service::where('status',1)->get()->keyby('id');
+            
+            if(isset($listService[$serviceId])){
+                // Kiểm tra giá hệ thống với giá clien
+                $detailService = $listService[$serviceId];
+                $price_system = $detailService->price_per_unit;
+                // dd($price_system.'__'.$price);
+                if($price_system == $price){
+                    // Kiểm tra số dư
+                    if($user->wallet >= $price){
+                        
+                        // Gọi API tới trung gian thuê sim
+                        $response = Http::get('https://api.bossotp.net/api/v4/rents/create', [
+                            'api_token' => $apiKey,
+                            'service_id' => $detailService->service_id,
+                            'prefixs' => explode('|',$prefixs),
+                            'network' => $network,
+                        ]);
+                        if ($response->successful()) {
+                            $data = $response->json();
+
+                            // Lưu lịch sử thuê sim
+                            $history = RentHistory::create([
+                                'user_id'   => $user->id,
+                                'service'   => $serviceId,
+                                'sim_number'    => $data['number'] ?? null,
+                                'rent_id'  => $data['rent_id'] ?? null,
+                                'status'    => 'success',
+                                'price'     => $price,
+                            ]);
+
+                            // Trừ tiền trong ví của khách hàng
+                            $user->wallet = $user->wallet - $price;
+                            $user->save();
+
+                        }else{
+                            $notice = 'Không thể thuê sim, vui lòng thử lại sau.';
+                        }
+                        
+                    }else{
+                        $notice = "Tài khoản không đủ";
+                    }
+                }else{
+                    $notice = "Giá dịch vụ không trùng khớp";
+                }
+            }else{
+                $notice = "Không tồn tại dịch vụ";
+            }
+            return redirect()->back()->with('successMessage', $notice);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+            ]);
+        }
     }
 
+    public function rentSimOldCreate(Request $request)
+    {   
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn cần đăng nhập để thuê sim.'
+            ]);
+        } 
+        $user = Auth::user();
+        $serviceId = $request->input('service_id');
+        $rent_id = $request->input('rent_id') ?? ''; // nếu có chọn nhà mạng
+        $price = $request->input('price') ?? '';
+        $apiKey = $this->apitoken ?? env('BOSSOTP_API_KEY');
+        try {
 
+            $listService = Service::where('status',1)->get()->keyby('id');
+            
+            if(isset($listService[$serviceId])){
+                // Kiểm tra giá hệ thống với giá clien
+                $detailService = $listService[$serviceId];
+                $price_system = $detailService->price_per_unit;
+                // dd($price_system.'__'.$price);
+                if($price_system == $price){
+                    // Kiểm tra số dư
+                    if($user->wallet >= $price){
+
+                        // Kiểm tra trạng thái thuê
+                        if($rent_id !=""){
+                            // Gọi API tới trung gian thuê sim
+                            $response = Http::get('https://bossotp.net/api/v4/rents/check', [
+                                'api_token' => $apiKey,
+                                'rent_id' => $rent_id,
+                            ]);
+                            if ($response->successful()) {
+
+                                $checkOrder = $response->json();
+
+                                $notice = "Giao dịch thành công";
+                                // Gọi API tới trung gian thuê sim
+                                $response = Http::get('https://api.bossotp.net/api/v4/rents/create', [
+                                    'api_token' => $apiKey,
+                                    'service_id' => $detailService->service_id,
+                                    're_number' => $checkOrder['number'] ?? '',
+                                ]);
+                                if ($response->successful()) {
+                                    $data = $response->json();
+                                    
+                                    // Lưu lịch sử thuê sim
+                                    $history = RentHistory::create([
+                                        'user_id'   => $user->id,
+                                        'service'   => $serviceId,
+                                        'sim_number'    => $data['number'] ?? null,
+                                        'rent_id'  => $data['rent_id'] ?? null,
+                                        'status'    => 'success',
+                                        'price'     => $price,
+                                    ]);
+
+                                    // Trừ tiền trong ví của khách hàng
+                                    $user->wallet = $user->wallet - $price;
+                                    $user->save();
+
+                                }else{
+                                    $notice = 'Không thể thuê sim, vui lòng thử lại sau.';
+                                }
+                                
+                            }else{
+                                $notice = 'Tạo yêu cầu thất bại';
+                            }
+                        }
+
+                    }else{
+                        $notice = "Tài khoản không đủ";
+                    }
+                }else{
+                    $notice = "Giá dịch vụ không trùng khớp";
+                }
+            }else{
+                $notice = "Không tồn tại dịch vụ";
+            }
+
+            return redirect()->back()->with('successMessage', $notice);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+            ]);
+        }
+    }
 
     public function rentOldNumber(Request $request)
     {
-          // dữ liệu demo
-        $items = collect([
-            (object)['id'=>1,'number'=>'0987123456','network'=>'Viettel','service'=>'Facebook','price'=>5000,'status'=>'available'],
-            (object)['id'=>2,'number'=>'0905123456','network'=>'Mobifone','service'=>'Zalo','price'=>6000,'status'=>'rented'],
-            (object)['id'=>3,'number'=>'0912345678','network'=>'Vinaphone','service'=>'Telegram','price'=>7000,'status'=>'available'],
-            // ... thêm nếu cần
-        ]);
+        if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
+        $user = Auth::user();
+        $items = RentHistory::where('user_id',$user->id)->get();
 
         // Lọc (nếu cần) dựa trên request params
         $keyword = trim($request->get('keyword', ''));
         $network  = $request->get('network', '');
-        $service  = $request->get('service', '');
+        $service_id  = $request->get('service_id', '');
         $prefix   = $request->get('prefix', '');
 
-        $filtered = $items->filter(function($it) use ($keyword, $network, $service, $prefix) {
+        $filtered = $items->filter(function($it) use ($keyword, $network, $service_id, $prefix) {
             if ($keyword) {
-                $matchKeyword = stripos($it->number, $keyword) !== false
-                    || stripos($it->service, $keyword) !== false
+                $matchKeyword = stripos($it->sim_number, $keyword) !== false
+                    || stripos($it->service_id, $keyword) !== false
                     || stripos($it->network, $keyword) !== false;
                 if (! $matchKeyword) return false;
             }
             if ($network && $it->network !== $network) return false;
-            if ($service && $it->service !== $service) return false;
-            if ($prefix && strpos($it->number, $prefix) !== 0) return false;
+            if ($service_id && $it->service_id !== $service_id) return false;
+            if ($prefix && strpos($it->sim_number, $prefix) !== 0) return false;
             return true;
         });
 
@@ -146,21 +313,17 @@ class ServiceController extends Controller
             $page,
             ['path' => request()->url(), 'query' => request()->query()]
         );
-
-        // danh sách select options để view dùng
-        $networks = ['Viettel','Mobifone','Vinaphone','Vietnamobile'];
-        $services = ['Facebook','Zalo','Telegram','Shopee','Tiktok'];
-        $prefixes = ['090','091','092','098','097'];
+        
+        $services = Service::where('status', 1)
+                   ->orderBy('id', 'ASC')
+                   ->get()->keyby('id');
 
         return view('frontend.services.rent-old-number', [
             'oldNumbers' => $paginated,
-            'networks'   => $networks,
+            'items' => $items,
             'services'   => $services,
-            'prefixes'   => $prefixes,
-            'keyword'    => $keyword,
-            'network'    => $network,
-            'service'    => $service,
-            'prefix'     => $prefix,
+            'web_information' => $this->web_information,
+            'translates' => $this->translates
         ]);
     }
 
@@ -177,24 +340,32 @@ class ServiceController extends Controller
         $histories = RentHistory::query()
             ->where('user_id', $user->id)
             ->when($keyword, function ($q) use ($keyword) {
-                $q->where('number', 'LIKE', "%$keyword%")
-                ->orWhere('service', 'LIKE', "%$keyword%");
+                $q->where('sim_number', 'LIKE', "%$keyword%")
+                ->orWhere('service_id', 'LIKE', "%$keyword%");
             })
             ->orderByDesc('id')
             ->paginate(10);
-
-        return view('frontend.services.rent-history', compact('histories'));
+          $services = Service::where('status', 1)
+                   ->orderBy('id', 'ASC')
+                   ->get()->keyby('id');
+        $web_information = $this->web_information;
+        $translates = $this->translates;
+        return view('frontend.services.rent-history', compact('histories','services','web_information','translates'));
     }
 
     /**
-     * Trang nạp tiền
+     * Trang nạp tiền vào sim
      */
     public function rechargeSim(Request $request)
     {
+        if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
         $user = Auth::user();
-
+        
         // Xử lý form nạp tiền
         if ($request->isMethod('post')) {
+            /*
             $amount = (int) $request->input('amount');
             $method = $request->input('method');
 
@@ -212,55 +383,27 @@ class ServiceController extends Controller
                 'method' => $method,
                 'created_at' => now()->format('Y-m-d H:i:s'),
             ]);
-
-            return back()->with('successMessage', "Nạp thành công " . number_format($amount) . " VNĐ qua {$method}!");
+            */
+            // return back()->with('successMessage', "Nạp thành công " . number_format($amount) . " VNĐ qua {$method}!");
         }
-
-        // Giả lập danh sách sim của user
-        $sims = collect([
-            (object) ['id' => 1, 'number' => '0987123456', 'network' => 'Viettel', 'balance' => 12000, 'status' => 'active'],
-            (object) ['id' => 2, 'number' => '0905123456', 'network' => 'Mobifone', 'balance' => 5000, 'status' => 'inactive'],
+        $web_information = $this->web_information;
+        $translates = $this->translates;
+        $sims = RentHistory::where('user_id',$user->id)->get();
+        return view('frontend.services.recharge-sim', [
+            'sims' => $sims,
+            'web_information' => $web_information,
+            'translates' => $translates,
         ]);
 
-        // Lọc theo keyword và trạng thái
-        $keyword = $request->keyword;
-        $status = $request->status;
-
-        $filtered = $sims->filter(function ($sim) use ($keyword, $status) {
-            $matchKeyword = !$keyword || str_contains($sim->number, $keyword) || str_contains($sim->network, $keyword);
-            $matchStatus = !$status || $sim->status === $status;
-            return $matchKeyword && $matchStatus;
-        });
-
-        // Phân trang thủ công cho sim
-        $perPage = 10;
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $currentItems = $filtered->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-        $activeSims = new LengthAwarePaginator(
-            $currentItems,
-            $filtered->count(),
-            $perPage,
-            $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        // Lấy lịch sử nạp tiền từ session (giả lập)
-        $rechargeHistory = collect(session('recharge_history', []))->reverse(); // mới nhất lên trước
-        $rechargeItems = $rechargeHistory->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-        $recharges = new LengthAwarePaginator(
-            $rechargeItems,
-            $rechargeHistory->count(),
-            $perPage,
-            $currentPage,
-            ['path' => request()->url(), 'query' => request()->query()]
-        );
-
-        return view('frontend.services.recharge-sim', compact('activeSims', 'recharges'));
+        // return view('frontend.services.recharge-sim', compact('sims', 'recharges'));
     }
+
     public function create101(Request $request)
-    {
+    {   
+         if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
+
         // Giả lập data
         $images = collect([
             (object) ['id'=>1, 'title'=>'Ảnh 101# 1', 'status'=>'active', 'created_at'=>'2025-10-16'],
@@ -288,16 +431,22 @@ class ServiceController extends Controller
             $currentPage,
             ['path' => request()->url(), 'query' => request()->query()]
         );
-
+        $web_information = $this->web_information;
+        $translates = $this->translates;
         return view('frontend.services.create-101', [
             'images' => $paginatedImages,
-            'keyword' => $keyword
+            'keyword' => $keyword,
+            'web_information' => $web_information,
+            'translates' => $translates,
         ]);
     }
 
     // Trang ảnh gửi tin nhắn
     public function sendMessageImg(Request $request)
-    {
+    {   
+         if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
         $messages = collect([
             (object) ['id'=>1, 'number'=>'0987123456', 'content'=>'Test message', 'status'=>'sent', 'created_at'=>'2025-10-16'],
             (object) ['id'=>2, 'number'=>'0905123456', 'content'=>'Hello world', 'status'=>'pending', 'created_at'=>'2025-10-16'],
@@ -323,17 +472,76 @@ class ServiceController extends Controller
             $currentPage,
             ['path' => request()->url(), 'query' => request()->query()]
         );
-
+        $web_information = $this->web_information;
+        $translates = $this->translates;
         return view('frontend.services.send-message-img', [
             'messages' => $paginatedMessages,
-            'keyword' => $keyword
+            'keyword' => $keyword,
+            'web_information' => $web_information,
+            'translates' => $translates,
         ]);
     }
 
-    public function rechargeAccount(Request $request)
-    {
+    public function historyRecharge(Request $request){
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
+
+        $user = Auth::user();
+        $keyword = $request->get('keyword');
+
+        // $histories = RentHistory::query()
+        //     ->where('user_id', $user->id)
+        //     ->when($keyword, function ($q) use ($keyword) {
+        //         $q->where('sim_number', 'LIKE', "%$keyword%")
+        //         ->orWhere('service_id', 'LIKE', "%$keyword%");
+        //     })
+        //     ->orderByDesc('id')
+        //     ->paginate(10);
         
-        // dd($ip1);
+        $histories = CmsHistoryRechargeuser::where('customer_id',$user->id)->orderBy('id','DESC')->paginate(10);
+        $web_information = $this->web_information;
+        $translates = $this->translates;
+        return view('frontend.services.history-recharge', compact('histories','web_information','translates'));
+    }
+
+    public function checkBalance(Request $request){
+        // Gọi API tới trung gian thuê sim
+        $apiKey = $this->apitoken ?? env('BOSSOTP_API_KEY');
+        $response = Http::get('https://bossotp.net/api/v4/users/me/balance', [
+            'api_token' => $apiKey,
+        ]);
+        if ($response->successful()) {
+            $data = $response->json();
+            
+            $balance = $data['balance'];
+
+            // Số tiền nhỏ hơn để gửi thông báo đến admin
+            if($balance < 100000){
+                // $customer_name = Auth::user()->name;
+                // $document_name = "Nạp tiền hệ thống";
+                $txt_email = $this->web_information->information->email ?? '';
+                if($txt_email !=""){
+                    $array_email = explode(',',$txt_email);
+                    Mail::send('frontend.emails.balance', ['balance' => $balance], function ($message) use ($array_email) {
+                        foreach($array_email as $email){
+                            $message->to($email);
+                        }
+                        $message->subject('Nạp tiền vào hệ thống');
+                    });
+                }
+                
+            }
+
+        }
+    }
+
+    public function rechargeAccount(Request $request)
+    {   
+        if (!Auth::check()) {
+            return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
+        }
         if ($request->isMethod('post')) {
             $user = Auth::user();
             
@@ -362,7 +570,7 @@ class ServiceController extends Controller
         // dd($this->web_information);
         // $this->responseData['web_information'] = $this->web_information;
 
-        return view('frontend.services.recharge-account',['web_information'=>$this->web_information]);
+        return view('frontend.services.recharge-account',['web_information'=>$this->web_information,'translates' => $this->translates]);
     }
 
 }

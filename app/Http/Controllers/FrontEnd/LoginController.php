@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
+    protected $apitoken;
+    protected $web_information;
+    protected $translates;
 
     public function index()
     {
@@ -20,38 +23,42 @@ class LoginController extends Controller
             return redirect()->route('frontend.home');
         }
         //return redirect()->route('frontend.home');
-        return view('frontend.pages.login');
+
+        $translates = $this->translates;
+        $web_information = $this->web_information;
+
+        return view('frontend.pages.login',compact('translates','web_information'));
     }
 
 
-public function login(LoginRequest $request)
-{
-    // Nếu đã đăng nhập rồi thì về trang chủ
-    if (Auth::guard('web')->check()) {
-        return redirect()->route('frontend.home');
+    public function login(LoginRequest $request)
+    {
+        // Nếu đã đăng nhập rồi thì về trang chủ
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('frontend.home');
+        }
+
+        // Lấy URL trước đó (nếu không có thì về trang chủ)
+        $redirect = URL::previous() ?: route('frontend.home');
+
+        // Chuẩn bị thông tin đăng nhập
+        $credentials = [
+            'email' => $request->email,
+            'password' => $request->password,
+            'status' => Consts::USER_STATUS['active'],
+        ];
+
+        // Thử đăng nhập
+        if (Auth::guard('web')->attempt($credentials)) {
+            $request->session()->regenerate(); // chống tấn công session fixation
+            return redirect($redirect)->with('success', 'Đăng nhập thành công!');
+        }
+
+        // Nếu đăng nhập thất bại
+        return back()
+            ->withErrors(['email' => 'Tên đăng nhập hoặc mật khẩu không đúng.'])
+            ->withInput();
     }
-
-    // Lấy URL trước đó (nếu không có thì về trang chủ)
-    $redirect = URL::previous() ?: route('frontend.home');
-
-    // Chuẩn bị thông tin đăng nhập
-    $credentials = [
-        'email' => $request->email,
-        'password' => $request->password,
-        'status' => Consts::USER_STATUS['active'],
-    ];
-
-    // Thử đăng nhập
-    if (Auth::guard('web')->attempt($credentials)) {
-        $request->session()->regenerate(); // chống tấn công session fixation
-        return redirect($redirect)->with('success', 'Đăng nhập thành công!');
-    }
-
-    // Nếu đăng nhập thất bại
-    return back()
-        ->withErrors(['email' => 'Tên đăng nhập hoặc mật khẩu không đúng.'])
-        ->withInput();
-}
 
     public function logout()
     {

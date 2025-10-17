@@ -252,4 +252,9 @@
     background: #dc3545;
     color: white;
 }
+.w-100{width: 100%;}
+.d-none{display: none}
+.mb-3, .my-3 {
+    margin-bottom: 1rem !important;
+}
 </style>

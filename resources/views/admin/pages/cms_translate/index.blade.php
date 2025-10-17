@@ -93,24 +93,14 @@
                   onsubmit="return confirm('@lang('confirm_action')')">
                   <tr class="valign-middle">
                     <td>
-                      {{ $stt+1 }}
+                      {{ $row->id }}
                     </td>
                     <td>
                       {{ $row->local }}
                     </td>
-					@foreach($languages as $lang)
                     <td>
-					<?php
-					foreach($row->json_param as $language => $translationText){
-						$bandich = '';
-						if($lang->lang_code == $language){
-							$bandich = $translationText;
-						}
-					?>
-					<input type="text" class="form-control" name="translations[{{ $lang->lang_code }}]" value="{{$bandich}}" >
-					<?php } ?>
+                      {!! $row->translate !!}
                     </td>
-					@endforeach
                     <td>
                       <a class="btn btn-sm btn-warning" data-toggle="tooltip" title="@lang('update')"
                         data-original-title="@lang('update')"

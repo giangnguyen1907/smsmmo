@@ -3,13 +3,12 @@
 @section('content')
 <section class="content">
   <div class="alert bg-danger text-white">
-    <div>Xin chào mọi người đã đến với SMSMMO , Chúc các bạn có một  ngày làm việc vui vẻ . Niềm vui của bạn cũng chính là hạnh phúc của tôi</div>
+    <div>{!! $translates[1] ?? ''!!}</div>
     <div></div>
   </div>
   <div class="box box-primary">
     
     {{-- Form tìm kiếm --}}
-    <form action="{{ route('frontend.service.rent-old-number') }}" method="GET">
       <div class="box-header pb-3">
         
         <div class="row box-body table-responsive">
@@ -22,49 +21,40 @@
                 <div class="profile-form-section">
                   <div class="media align-items-center d-flex justify-content-between alert alert-warning mb-4">
                     <div style="">
-                      - Sim bên mình đảo số liên tục , lên trường hợp Không Online các
-                      bạn cũng thông cảm (có thể hôm khác sẽ được lắp lại, nhưng các
-                      bạn bảo lắp lại thì không có)
-                      <br>
-                      - Dịch vụ này chỉ là góp 1 phần thuê lại số , nó không hoàn
-                      hảo tuyệt đối , mong các bạn thông cảm , có trường hợp thuê 5
-                      ngày vẫn thuê lại được , có trường hợp hết lượt cái đúng lúc
-                      bị tháo sim lên anh em chú ý giúp.
+                      {!! $translates[2] ?? ''!!}
                     </div>
                   </div>
-                  <form class="MinhChien-MSource">
-                    
+                  <form class="MinhChien-MSource" id="rentsimOldCreate" method="POST">
+                    @csrf
                     <div class="grid grid-cols-1 gap-5 md:grid-cols-4 mb-9">
                       <div class="mb-3" style="display: none">
                         <input type="hidden" id="csrf_token" value="MTgzYzdhMWRlNDQ0NjQ1NDllMDk1OTgzMjZjM2M2ZGE1OWY4ZTkxMmM5NDliMjg1Zjc3NmYyYmFkZTJmNzM5MQ==">
                       </div>
                       <div class="form-group">
                         <label>🥷 Chọn Dịch Vụ <span class="text-danger">*</span></label>
-                        <select id="DichVuSim" name="DichVuSim" class="form-control">
-                            <option value="">-- Chọn dịch vụ --</option>
-                            <option value="4" data-price="18000">Gửi SMS - VIP2 (Viettel) - (18.000đ) - Live 10 phút</option>
-                            <option value="6" data-price="17000">Gửi SMS - VIP1 (Mạng Khác) - (17.000đ) - Live 15 phút</option>
-                            <option value="29" data-price="10000">Nhận ALL GAME - (10.000đ) - Live 5 phút</option>
-                            <option value="37" data-price="10000">Nhận - OKVIP2 - 789BET - (10.000đ) - Live 5 phút</option>
-                            <option value="11" data-price="10000">Nhận - OKVIP - (10.000đ) - Live 5 phút</option>
-                            <option value="89" data-price="20000">CuocGoi 5day (Chuyển cuộc gọi) - (20.000đ) - Live 10 phút</option>
-                            <option value="33" data-price="10000">DV KHÁC - (10.000đ) - Live 8.3 phút</option>
-                            <option value="81" data-price="3000">Facebook - (3.000đ) - Live 6 phút</option>
-                            <option value="83" data-price="15000">Telegram - (15.000đ) - Live 8 phút</option>
-                            <option value="84" data-price="20000">Zalopc - (20.000đ) - Live 10 phút</option>
+                        <select name="service_id" id="DichVuSim" required class="form-control select2" onchange="chooseService()">
+                          <option value="">-- Chọn dịch vụ --</option>
+                          @foreach($services as $service)
+                          <option value="{{$service->id}}" data-price="{{round($service->price_per_unit)}}">{{$service->name}}</option>
+                          @endforeach
                         </select>
                       </div>
                       
                       <div class="form-group">
                         <label>💞 Chọn Số Cũ <span class="text-danger">*</span></label> 
-                        <div id="listNumber">Không có số nào được tìm thấy!</div>
+                        <select name="rent_id" id="listNumber" required class="form-control select2">
+                          <option value="">-- Chọn Số Cũ --</option>
+                          @foreach($items as $item)
+                          <option value="{{$item->rent_id}}" >{{$item->sim_number}}</option>
+                          @endforeach
+                        </select>
                       </div>
 
                       <div class="mb-1">
+                        <label>💰 Thanh toán: <b id="priceFM" class="text-danger">0đ</b></label>
+                        <input type="hidden" name="price" id="price-input">
                         <br>
-                        <button class="btn btn-success" type="button" id="btnBuy">
-                          Tạo Yêu Cầu
-                        </button>
+                        <button class="btn btn-primary mr-2" type="button" onclick="createService()" id="btnBuy">Tạo yêu cầu</button>
                         <button class="btn btn-warning">
                           <a href="/lich-su-thue">
                             Lịch Sử Mua
@@ -100,6 +90,7 @@
                 @endif
 
                 {{-- Nếu không có dữ liệu --}}
+                {{--
                 @if ($oldNumbers->isEmpty())
                   <div class="alert alert-warning">
                     <i class="fa fa-info-circle"></i> Không tìm thấy số cũ nào!
@@ -146,22 +137,66 @@
                     </tbody>
                   </table>
                 @endif
+                --}}
               </div>
 
-              {{-- Phân trang --}}
+              {{-- Phân trang 
               @if ($oldNumbers->hasPages())
                 <div class="box-footer clearfix">
                   {{ $oldNumbers->withQueryString()->links('pagination::bootstrap-4') }}
                 </div>
               @endif
+              --}}
             </div>
           </div>
         </div>
       </div>
-    </form>
 
   </div>
 </section>
+
+
+<script>
+  
+  function chooseService(){
+    const serviceSelect = document.getElementById('DichVuSim'); // Dropdown dịch vụ
+    const priceLabel = document.getElementById('priceFM'); // Label hiển thị giá
+
+    const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
+    let price = 0;
+
+    // Nếu có giá trong thuộc tính data-price
+    if (selectedOption && selectedOption.dataset && selectedOption.dataset.price) {
+        price = parseInt(selectedOption.dataset.price); // Chuyển đổi giá trị thành số
+    }
+    $('#price-input').val(price);
+    // Cập nhật giá hiển thị
+    priceLabel.textContent = price.toLocaleString('vi-VN') + 'đ';
+
+  }
+  
+  function createService(){
+    
+    let price = $('#price-input').val();
+    let wallet = @json(Auth()->user()->wallet);
+    let service_id = $('#DichVuSim').val();
+    let rent_id = $('#listNumber').val();
+    
+    if(service_id > 0 && rent_id !=""){
+      if(price*1 > wallet*1){
+        alert('Số tiền trong ví của bạn không đủ, vui lòng nạp thêm tiền để tiếp tục dịch vụ!');
+        window.location.href = "/recharge-account";
+      }else{
+        $('#rentsimOldCreate').attr("action","{{ route('rentsimold.create') }}");
+        $('#rentsimOldCreate').submit();
+      }
+    }else{
+      alert('Vui lòng chọn dịch vụ hoặc sim cũ');
+    }
+  }
+
+</script>
+
 
 <style>
 .card {

@@ -3,8 +3,33 @@
 @section('content')
 <section class="content">
   <div class="box box-primary">
-    <div class="box-header pb-3">
-      <h3 class="box-title mb-3"><i class="fa fa-wallet"></i> Nạp tiền sim</h3>
+    <div class="alert bg-danger text-white">
+      <div>{!! $translates[1] ?? ''!!}</div>
+      <div></div>
+    </div>
+    <div class="form-box" style="width: auto;">
+      <h2>
+        Nạp 1000 Vào số bạn đang thuê (chỉ hỗ trợ Viettel)
+      </h2>
+      <form method="POST" action="#">
+        <div class="alert bg-danger text-white">
+          <div>
+            {!! $translates[5] ?? ''!!}
+          </div>
+          <div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>💞 Chọn Số Cũ <span class="text-danger">*</span></label> 
+          <select name="rent_id" id="listNumber" required="" class="form-control select2">
+            <option value="">-- Chọn Số Cũ --</option>
+            @foreach($sims as $sim)
+            <option value="{{$sim->sim_number}}">{{$sim->sim_number}}</option>
+            @endforeach
+          </select>
+        </div>
+        <button class="btn btn-primary mr-2" type="button" id="btnBuy">Gửi</button>
+      </form>
     </div>
 
     {{-- Form nạp tiền --}}
@@ -22,7 +47,7 @@
           {{ session('errorMessage') }}
         </div>
       @endif
-
+{{-- 
       <form action="{{ route('frontend.service.recharge-sim.submit') }}" method="POST" class="form-horizontal">
         @csrf
         <div class="form-group row">
@@ -55,10 +80,10 @@
             </a>
           </div>
         </div>
-      </form>
+      </form> --}}
     </div>
 
-    {{-- Lịch sử nạp tiền --}}
+    {{-- Lịch sử nạp tiền 
     <div class="box-body table-responsive mt-4">
       <h4><i class="fa fa-clock"></i> Lịch sử nạp tiền</h4>
       @if ($recharges->isEmpty())
@@ -104,13 +129,29 @@
         {{ $recharges->withQueryString()->links('pagination::bootstrap-4') }}
       </div>
     @endif
+    --}}
   </div>
 </section>
 
 <style>
-.box { background: #fff; border: 1px solid #ddd; border-radius: 6px; margin-top: 20px; }
+.box { background: #fff; border: 1px solid #ddd; border-radius: 6px; }
 .badge-success { background-color: #28a745; }
 .badge-danger { background-color: #dc3545; }
 .valign-middle td { vertical-align: middle !important; }
+.form-box {
+    border: 1px solid #ccc;
+    padding: 15px;
+    width: 300px;
+    border-radius: 8px;
+    font-family: Arial;
+}
+.alert {
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    margin-bottom: 1rem;
+    padding: .75rem 1.25rem;
+    position: relative;
+}
+
 </style>
 @endsection

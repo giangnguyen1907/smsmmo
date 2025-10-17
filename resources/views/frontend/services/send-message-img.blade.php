@@ -55,10 +55,10 @@
 
             <!-- Hiển thị ảnh dưới dạng Base64 khi form đã được submit -->
             <!-- Form nhập số điện thoại, số dư và thời gian -->
-            <form method="POST" action="">
+            <form method="POST" action="#">
                 <div class="form-group">
                     <label for="text">Số điện thoại:</label>
-                    <input type="text" id="text" name="text" class="form-control" value="">
+                    <input type="text" id="text" name="text" class="form-control" placeholder="Nhập sđt" value="">
                 </div>
 
                 <div class="form-group">
@@ -87,7 +87,7 @@
   </div>
 <!-- Các liên kết tới script cần thiết -->
  <style>
-  .box { background: #fff; border: 1px solid #ddd; border-radius: 6px; margin-top: 20px; padding: inherit; }
+  .box { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: inherit; }
  </style>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

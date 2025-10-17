@@ -77,11 +77,11 @@ class CmsHistoryRechargeuserController extends Controller
                 $user->save();
 				
 				// Gửi email cho khách hàng
-				$email = $user->email;
-				Mail::send('frontend.emails.payment', ['member_name' => $user->name,'payment'=>$row->payment], function ($message) use ($email) {
-					$message->to($email);
-					$message->subject('Nạp tiền hệ thống sách điện tử');
-				});
+				// $email = $user->email;
+				// Mail::send('frontend.emails.payment', ['member_name' => $user->name,'payment'=>$row->payment], function ($message) use ($email) {
+				// 	$message->to($email);
+				// 	$message->subject('Nạp tiền hệ thống sách điện tử');
+				// });
 				
                 $message = 'Đơn hàng đã được duyệt, cộng tiền vào tài khoản người dùng thành công.';
             } elseif ($action == 'recall') {

@@ -144,6 +144,8 @@ Route::group(['namespace' => 'Admin'], function () {
 
         // Luu danh mục
 		Route::post('cms_dichvu/save_ajax', 'CmsDichvuController@saveAjax')->name('cms_dichvu.save_ajax');
+
+        Route::get('service_save_ajax', 'ServiceController@saveAjax')->name('service.save_ajax');
         
         Route::get('cms_posts_featured', 'CmsPostController@listFeatured')->name('cms_posts_featured.index');
         Route::post('cms_posts/update_sort', 'CmsPostController@updateSort')->name('cms_posts.update_sort');

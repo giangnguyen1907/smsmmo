@@ -20,8 +20,13 @@
     {{-- Nếu chưa đăng nhập --}}
     @guest
       <li>
+        <a href="{{ route('frontend.register') }}">
+          <i class="fa fa-user"></i><br> <span>Đăng ký</span>
+        </a>
+      </li>
+      <li>
         <a href="{{ route('frontend.login') }}">
-          <i class="fa fa-sign-in-alt"></i> <span>Đăng Nhập</span>
+          <i class="fa fa-sign-in"></i><br> <span>Đăng Nhập</span>
         </a>
       </li>
     @endguest
@@ -30,6 +35,7 @@
     @auth
       <li class="dropdown user user-menu">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          <i class="fa fa-user"></i><br>
           <span class="hidden-xs">
             {{ Auth::user()->name ?? 'Người dùng' }}
           </span>

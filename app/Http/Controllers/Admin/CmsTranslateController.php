@@ -79,17 +79,17 @@ class CmsTranslateController extends Controller
 
         $request->validate([
             'local' => 'required|unique:tb_cms_translate',
-            'translations' => "required",
+            'translate' => "required",
         ]);
 
-        $translations = [];
-        foreach ($request->input('translations') as $language => $translation) {
-            $translations[$language] = $translation;
-        }
+        // $translations = [];
+        // foreach ($request->input('translations') as $language => $translation) {
+        //     $translations[$language] = $translation;
+        // }
 
         CmsTranslate::create([
             'local' => $request->input('local'),
-            'json_param' => $translations,
+            'translate' => $request->input('translate'),
             'admin_created_id' => Auth::guard('admin')->user()->id,
             'admin_updated_id' => Auth::guard('admin')->user()->id
         ]);
@@ -135,17 +135,17 @@ class CmsTranslateController extends Controller
     {
         $request->validate([
             'local' => 'required',
-            'translations' => "required",
+            'translate' => "required",
         ]);
 
-        $translations = [];
-        foreach ($request->input('translations') as $language => $translation) {
-            $translations[$language] = $translation;
-        }
+        // $translations = [];
+        // foreach ($request->input('translations') as $language => $translation) {
+        //     $translations[$language] = $translation;
+        // }
 
         $cmsTranslate->update([
             'local' => $request->input('local'),
-            'json_param' => $translations,
+            'translate' => $request->input('translate'),
             'admin_updated_id' => Auth::guard('admin')->user()->id
         ]);
 

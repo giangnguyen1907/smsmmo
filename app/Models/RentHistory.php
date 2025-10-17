@@ -8,15 +8,18 @@ class RentHistory extends Model
 {
 
     protected $table = 'rent_histories'; // Tên bảng trong database
-
+    
     protected $fillable = [
         'user_id',
+        'rent_id',
         'sim_number',
-        'service_code',
-        'cost',
+        'service_id',
+        'network',
+        'price',
         'status',
         'rent_date',
         'expire_date',
+        'otp_code',
         'messages_received',
         'created_at',
         'updated_at'
@@ -25,7 +28,6 @@ class RentHistory extends Model
     protected $casts = [
         'rent_date' => 'datetime',
         'expire_date' => 'datetime',
-        'cost' => 'decimal:2',
         'messages_received' => 'array'
     ];
 

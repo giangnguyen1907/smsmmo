@@ -2,9 +2,8 @@
 
 @section('content')
 <section class="content">
-    <div class="alert bg-danger text-white">
-        <div>LƯU Ý: Nạp <u><b>tối thiểu 50.000đ</b></u> và hãy <u><b>chuyển khoản đúng nội dung web yêu cầu</b></u> để hệ thống tự động cộng tiền vào tài khoản sau 5-10p. Nếu gặp vấn đề vui lòng liên hệ admin</div>
-        <div></div>
+    <div class="alert bg-danger">
+        <div>{!! $translates[3] ?? ''!!}</div>
     </div>
     <div class="box box-primary">
     

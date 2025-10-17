@@ -36,6 +36,7 @@ Route::namespace('FrontEnd')->group(function () {
   
   Route::get('/login', 'LoginController@index')->name('frontend.login');
   Route::post('/login-post', 'LoginController@login')->name('frontend.login.post');
+  Route::get('/register', 'UsersController@showRegisterForm')->name('frontend.register.index');
   Route::post('/register', 'UsersController@register')->name('frontend.register');
   Route::get('/logout', 'LoginController@logout')->name('frontend.logout');
   //Quên mật khẩu
@@ -52,11 +53,16 @@ Route::namespace('FrontEnd')->group(function () {
 
   
   Route::get('/thue-sim', 'ServiceController@rentSim')->name('frontend.service.rent-sim');
-  Route::post('/rentsim/create', 'ServiceController@rentSimcreate')->name('rentsim.create');
+  Route::post('/rentsim/create', 'ServiceController@rentSimCreate')->name('rentsim.create');
+  // Thuê lại sim
+  Route::post('/rentsimold/create', 'ServiceController@rentSimOldCreate')->name('rentsimold.create');
+
   Route::get('/thue-so-cu', 'ServiceController@rentOldNumber')->name('frontend.service.rent-old-number');
   Route::get('/lich-su-thue-sim', 'ServiceController@rentHistory')->name('frontend.service.history');
   Route::get('/nap-sim', 'ServiceController@rechargeSim')->name('frontend.service.recharge');
   Route::post('/nap-tien-sim', 'ServiceController@rechargeSubmit')->name('frontend.service.recharge-sim.submit');
+
+  Route::get('/lich-su-nap', 'ServiceController@historyRecharge')->name('frontend.history.recharge');
 
   // Tạo ảnh *101#
   Route::get('/create-101', [App\Http\Controllers\FrontEnd\ServiceController::class, 'create101'])->name('frontend.service.create-101');
@@ -65,6 +71,10 @@ Route::namespace('FrontEnd')->group(function () {
   Route::get('/send-message-img', [App\Http\Controllers\FrontEnd\ServiceController::class, 'sendMessageImg'])->name('frontend.service.send-message-img');
   Route::match(['get','post'], '/recharge-account', [App\Http\Controllers\FrontEnd\ServiceController::class, 'rechargeAccount'])
     ->name('frontend.service.recharge-account');
+
+  Route::get('/check-balance', 'ServiceController@checkBalance')->name('frontend.service.balance');
+
+
 
 
   // CMS
@@ -118,7 +128,7 @@ Route::namespace('FrontEnd')->group(function () {
 
   //dich vu
   //Route::get('service/{alias}', 'CmsController@service')->name('frontend.cms.service');
-
+  
 
   Route::get('thu-vien/{alias?}', 'CmsController@thuvienCategory')->name('frontend.cms.thuvien_category');
   Route::get('detail/{alias_detail}', 'CmsController@post')->name('frontend.cms.post');
