@@ -405,12 +405,18 @@ class UsersController extends Controller
 		
 		$checkEmail = User::where('email', trim($params['email']))->where('status','active')->first();
 		
+        $checkUsername = User::where('username', trim($params['username']))->where('status','active')->first(); 
+       
 		if($checkEmail){
 			return redirect()->back()->with('error', 'Tài khoản email đã tồn tại, vui lòng đăng ký bằng tài khoản email khác!');
 		}
 		
+        if($checkUsername){
+            return redirect()->back()->with('error', 'Tài khoản tên đăng nhập đã tồn tại, vui lòng đăng ký bằng tên đăng nhập khác!');
+        }
         $user_register = new User();
         $user_register->name = $params['name'];
+        $user_register->username = $params['username']; 
         $user_register->email = $params['email'];
         $user_register->password = $params['password'];
         $user_register->status = 'active';
@@ -418,7 +424,7 @@ class UsersController extends Controller
         
         if ($saveUser) {
             if (Auth::guard('web')->attempt([
-                'email' => $params['email'],
+                'email' => $params['email'],  
                 'password' => $params['password'],
             ])) {
                 return redirect($url)->with('success', 'Đăng ký thành công!');

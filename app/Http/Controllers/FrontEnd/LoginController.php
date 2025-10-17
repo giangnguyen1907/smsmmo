@@ -31,34 +31,34 @@ class LoginController extends Controller
     }
 
 
-    public function login(LoginRequest $request)
-    {
-        // Nếu đã đăng nhập rồi thì về trang chủ
-        if (Auth::guard('web')->check()) {
-            return redirect()->route('frontend.home');
-        }
-
-        // Lấy URL trước đó (nếu không có thì về trang chủ)
-        $redirect = URL::previous() ?: route('frontend.home');
-
-        // Chuẩn bị thông tin đăng nhập
-        $credentials = [
-            'email' => $request->email,
-            'password' => $request->password,
-            'status' => Consts::USER_STATUS['active'],
-        ];
-
-        // Thử đăng nhập
-        if (Auth::guard('web')->attempt($credentials)) {
-            $request->session()->regenerate(); // chống tấn công session fixation
-            return redirect($redirect)->with('success', 'Đăng nhập thành công!');
-        }
-
-        // Nếu đăng nhập thất bại
-        return back()
-            ->withErrors(['email' => 'Tên đăng nhập hoặc mật khẩu không đúng.'])
-            ->withInput();
+  public function login(LoginRequest $request)
+ {
+    if (Auth::guard('web')->check()) {
+        return redirect()->route('frontend.home');
     }
+
+    $redirect = URL::previous() ?: route('frontend.home');
+
+    $loginField = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+    $credentials = [
+        $loginField => $request->email,
+        'password' => $request->password,
+        'status' => Consts::USER_STATUS['active'],
+    ];
+
+    if (Auth::guard('web')->attempt($credentials)) {
+        $request->session()->regenerate(); // chống tấn công session fixation
+        return redirect($redirect)->with('success', 'Đăng nhập thành công!');
+    }
+
+    // return back()
+    //     ->withErrors(['email' => 'Tên đăng nhập hoặc mật khẩu không đúng.'])
+    //     ->withInput();
+        return redirect()->back()->with('error', 'Tên đăng nhập hoặc mật khẩu không đúng.');
+
+ }
+
 
     public function logout()
     {
