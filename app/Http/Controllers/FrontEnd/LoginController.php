@@ -43,7 +43,7 @@ class LoginController extends Controller
 
         // Chuẩn bị thông tin đăng nhập
         $credentials = [
-            'email' => $request->email,
+            'username' => $request->email,
             'password' => $request->password,
             'status' => Consts::USER_STATUS['active'],
         ];

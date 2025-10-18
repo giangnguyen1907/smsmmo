@@ -11,9 +11,7 @@
                 <div class="row box-body table-responsive">
                 <div class="col-12">
                   <div class="alert alert-warning rounded-3 p-3">
-                    - Không đồng ý dùng SMS trái pháp luật.<br>
-                    - Chọn dịch vụ và đầu số, nếu không chọn đầu số thì chọn nhà mạng.<br>
-                    - Tạo yêu cầu đồng nghĩa chấp nhận rủi ro sim bị chặn.
+                    {!! $translates[7] ?? ''!!}
                   </div>
             </div>
         </div>
@@ -99,8 +97,9 @@
       @endif
       
       <div class="media align-items-center d-flex justify-content-between alert alert-warning mb-4">
-        <div><b>➔ Bạn hỏi : Lỗi [Vui Lòng Nhập Đầy Đủ Thông Tin]?</b><br>
-        🙋Trả lời : Nếu bạn xảy ra lỗi này , vì bạn thuê lúc nhiều sim , và sim bạn gửi đang ở hàng 2 3 4 gì đó vui lòng chờ hết giờ và thuê lại để cho số mới thuê lên hàng đầu tiên rồi gửi tin nhắn nhá</div>
+        <div>
+          {!! $translates[6] ?? ''!!}
+        </div>
       </div>
 
       {{-- Nếu không có sim --}}

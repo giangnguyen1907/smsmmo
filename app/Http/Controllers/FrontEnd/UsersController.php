@@ -353,7 +353,7 @@ class UsersController extends Controller
      */
     public function update(Request $request)
     {
-
+        
         $params = $request->all();
         $targetDir = "member/hinhanh".Auth::guard('web')->user()->id."/";
         //$allowTypes = array('jpg','png','jpeg','gif');
@@ -395,30 +395,37 @@ class UsersController extends Controller
     }
     public function showRegisterForm()
     {   
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('frontend.home');
+        }
         return $this->responseView('frontend.pages.register');
     }
 
     public function register(Request $request)
     {
+        // dd(Auth::guard('web'));
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('frontend.home');
+        }
         $params = $request->all();
-        $url = URL::previous() ?: route('frontend.home');
+        $url = route('frontend.home');
 		
-		$checkEmail = User::where('email', trim($params['email']))->where('status','active')->first();
+		$checkEmail = User::where('username', trim($params['email']))->where('status','active')->first();
 		
 		if($checkEmail){
-			return redirect()->back()->with('error', 'Tài khoản email đã tồn tại, vui lòng đăng ký bằng tài khoản email khác!');
+			return redirect()->back()->with('error', 'Tài khoản đã tồn tại, vui lòng đăng ký bằng tài khoản khác!');
 		}
 		
         $user_register = new User();
         $user_register->name = $params['name'];
-        $user_register->email = $params['email'];
+        $user_register->username = $params['email'];
         $user_register->password = $params['password'];
         $user_register->status = 'active';
         $saveUser = $user_register -> save();
         
         if ($saveUser) {
             if (Auth::guard('web')->attempt([
-                'email' => $params['email'],
+                'username' => $params['email'],
                 'password' => $params['password'],
             ])) {
                 return redirect($url)->with('success', 'Đăng ký thành công!');

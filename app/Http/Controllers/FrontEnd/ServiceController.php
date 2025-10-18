@@ -23,6 +23,9 @@ class ServiceController extends Controller
         if (!Auth::check()) {
             return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
         }
+
+        // dd($this->checkBalance());
+
         $user = Auth::user();
         // // dd($this->apitoken);
         // $url = 'https://bossotp.net/api/v5/service-manager/services/me';
@@ -506,7 +509,7 @@ class ServiceController extends Controller
         return view('frontend.services.history-recharge', compact('histories','web_information','translates'));
     }
 
-    public function checkBalance(Request $request){
+    public function checkBalance(){
         // Gọi API tới trung gian thuê sim
         $apiKey = $this->apitoken ?? env('BOSSOTP_API_KEY');
         $response = Http::get('https://bossotp.net/api/v4/users/me/balance', [
@@ -516,8 +519,8 @@ class ServiceController extends Controller
             $data = $response->json();
             
             $balance = $data['balance'];
-
-            // Số tiền nhỏ hơn để gửi thông báo đến admin
+            // return $balance;
+            // // Số tiền nhỏ hơn để gửi thông báo đến admin
             if($balance < 100000){
                 // $customer_name = Auth::user()->name;
                 // $document_name = "Nạp tiền hệ thống";
