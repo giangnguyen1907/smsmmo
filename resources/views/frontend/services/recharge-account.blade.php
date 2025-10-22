@@ -31,6 +31,12 @@
                 </h4>
             </div>
             <div class="card-body">
+                <?php foreach ($listVoucher as $key => $voucher) {?>
+                <div class="alert bg-primary">
+                    <div>{!! $voucher->title !!}</div>
+                </div>
+                <?php } ?>
+
                 <div class="profile-form-section">
                     <div class="grid grid-cols-1 gap-5 md:grid-cols-4 mb-9">
                         

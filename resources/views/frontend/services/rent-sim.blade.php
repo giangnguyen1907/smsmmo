@@ -25,7 +25,7 @@
               <select name="service_id" id="DichVuSim" required class="form-control select2" onchange="chooseService()">
                 <option value="">-- Chọn dịch vụ --</option>
                 @foreach($services as $service)
-                <option value="{{$service->id}}" data-price="{{round($service->price_per_unit)}}">{{$service->name}}</option>
+                <option value="{{$service->id}}" data-price="{{round($service->price_per_unit)}}">{{$service->name .' - '.number_format($service->price_per_unit).'đ' }}</option>
                 @endforeach
               </select>
               
@@ -38,8 +38,7 @@
               <div></div>
             </div>
             <div class="form-group">
-              <select name="network" id="NhaMang" class="form-control">
-                <option value="OTHER2">Chọn nhà mạng</option>
+              <select name="network" id="NhaMang" required class="form-control">
                 <option value="VIETTEL">VIETTEL</option>
                 <option value="MOBIFONE">MOBIFONE</option>
                 <option value="VINAPHONE">VINAPHONE</option>
@@ -49,20 +48,14 @@
             </div>
           </div>
 
-
+          <?php $array_dauso = [32,33,34,35,36,37,38,39,52,56,58,59,70,72,73,74,75,76,77,78,79,81,82,83,84,85,86,87,88,89,90,91,92,93,94,96,97,98,99]; ?>
           <div class="col-md-12">
             <div class="form-group">
               <label>🚀 Chọn Đầu Số (Ngẫu nhiên) </label>
               <select id="prefixs" name="prefixs[]" multiple class="form-control select2">
-                
-                <option value="32">32</option>
-                <option value="33">33</option>
-                <option value="34">34</option>
-                <option value="35">35</option>
-                <option value="36">36</option>
-                <option value="37">37</option>
-                <option value="38">38</option>
-                <option value="39">39</option>
+                <?php foreach($array_dauso as $dauso){ ?>
+                <option value="{{$dauso}}">{{$dauso}}</option>
+                <?php } ?>
               </select>
             </div>
           </div>
@@ -111,7 +104,7 @@
         <table class="table table-hover table-bordered">
           <thead class="bg-light">
             <tr>
-              <th>ID</th>
+              <th class="text-center">STT</th>
               <th>Dịch vụ</th>
               <th>Số thuê</th>
               <th>OTP</th>
@@ -121,18 +114,18 @@
             </tr>
           </thead>
           <tbody>
-            @foreach ($sims as $sim)
+            @foreach ($sims as $stt=>$sim)
               <tr class="valign-middle">
-                <td>{{ $sim->id }}</td>
+                <td class="text-center">{{ $stt+1 }}</td>
                 <td>{{ $services[$sim->service_id]->name ?? '' }}</td>
                 <td><strong>{{ $sim->sim_number }}</strong></td>
                 <td><strong>{{ $sim->otp_code }}</strong></td>
                 <td>{{ number_format($sim->price) }}</td>
                 <td>
-                  @if ($sim->status == 'available')
-                    <span class="badge badge-success">Còn trống</span>
+                  @if ($sim->status == 'SUCCESS')
+                    <span class="badge badge-success">{{$sim->status}}</span>
                   @else
-                    <span class="badge badge-secondary">Đang thuê</span>
+                    <span class="badge badge-secondary">{{$sim->status}}</span>
                   @endif
                 </td>
                 <td>

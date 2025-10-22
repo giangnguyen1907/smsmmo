@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\URL;
 
 class UsersController extends Controller
 {
+    protected $web_information;
     public function storeRecharge(Request $request)
     {
         $params = $request->all();
@@ -56,15 +57,21 @@ class UsersController extends Controller
                 'payment_method' => 2,
             ]);
 
-            // $customer_name = Auth::user()->name;
-            // $document_name = "Nạp tiền hệ thống";
-            // $email = env('email_admin','newwaytech.thanhpv@gmail.com');
-            // $email2 = env('email_admin2','tranhien23102k@gmail.com');
-            // Mail::send('frontend.emails.pending', ['member_name' => $customer_name,'document_name'=>$document_name], function ($message) use ($email,$email2,$customer_name,$document_name) {
-            //     $message->to($email);
-            //     $message->to($email2);
-            //     $message->subject($customer_name.' chờ mua sách '.$document_name);
-            // });
+            $customer_name = Auth::user()->name;
+            $document_name = "Nạp tiền hệ thống";
+            
+            // dd($this->web_information);
+            $txt_email = $this->web_information->information->email ?? '';
+            if($txt_email !=""){
+                $array_email = explode(',',$txt_email);
+
+                Mail::send('frontend.emails.pending', ['member_name' => $customer_name,'document_name'=>$document_name], function ($message) use ($array_email,$customer_name,$document_name) {
+                    foreach($array_email as $email){
+                        $message->to($email);
+                    }
+                    $message->subject($customer_name.' chờ nạp tiền hệ thống');
+                });
+            }
             
             return redirect()->back()->with('success_recharge', 'Cảm ơn bạn đã nạp tiền. Hệ thống kiểm tra và nạp tiền vào tài khoản sớm nhất cho bạn.');
         }

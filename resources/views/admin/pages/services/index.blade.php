@@ -23,6 +23,35 @@
         <div class="box-header">
             <h3 class="box-title">Danh sách dịch vụ</h3>
         </div>
+	<div class="box-body p-4 bg-white rounded shadow-sm" style="max-width: 400px;">
+  <h4 class="fw-semibold text-secondary mb-3">Phần trăm chênh lệch</h4>
+
+  <form 
+    action="{{ route('services.updatePrice') }}" 
+    method="POST" 
+    class="row g-2 align-items-center"
+  >
+    @csrf
+    <div class="col-12 col-md-8">
+      <input 
+        type="number" 
+        name="percent" 
+        class="form-control py-2" 
+        placeholder="Nhập giá trị %" 
+        min="0" 
+        max="100" 
+        step="0.01"
+        required
+      >
+    </div>
+
+    <div class="col-12 col-md-4">
+      <button type="submit" class="btn btn-warning text-white w-100 py-2">
+        Cập nhật
+      </button>
+    </div>
+  </form>
+</div>
 
         <div class="box-body table-responsive">
             {{-- Hiển thị thông báo --}}

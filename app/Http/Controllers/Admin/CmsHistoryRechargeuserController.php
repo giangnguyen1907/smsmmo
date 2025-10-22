@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\CmsHistoryRechargeuser;
 use App\Models\User;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 use App\Http\Services\ContentService;
 use App\Consts;
@@ -68,12 +69,21 @@ class CmsHistoryRechargeuserController extends Controller
         if(!$user){
             return response()->json(['success' => false, 'message' => 'Không tìm thấy người dùng.']);
         }
-
+        $dateTime = now();
+        $listVoucher = Voucher::where('status',1)->where('start_date', '<=', $dateTime)->where('stop_date', '>=', $dateTime)->orderBy('price','DESC')->get();
         if ($row) {
             if ($action == 'approve') {
                 $row->status = 1;
+                $tienkm = 0;
+                foreach ($listVoucher as $khuyenmai) {
+                    if($row->payment >= $khuyenmai->price){
+                        $tienkm = ($row->payment*$khuyenmai->percent)/100;
+                        break;
+                    }
+                }
+                $row->voucher = $tienkm;
 
-                $user->wallet = $user->wallet + $row->payment;
+                $user->wallet = $user->wallet + $row->payment+$tienkm;
                 $user->save();
 				
 				// Gửi email cho khách hàng
@@ -90,7 +100,7 @@ class CmsHistoryRechargeuserController extends Controller
                 if($user->wallet < $row->payment){
                     return response()->json(['success' => false, 'message' => 'Tài khoản của người dùng không đủ để thu hồi đơn hàng.']);
                 }else{
-                    $user->wallet = $user->wallet - $row->payment;
+                    $user->wallet = $user->wallet - $row->payment - $row->voucher;
                     $user->save();
                     $message = 'Đơn hàng đã bị thu hồi, trừ đi số tiền trong tài khoản người dùng thành công.';
                 }

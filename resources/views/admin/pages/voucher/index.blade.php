@@ -89,8 +89,9 @@
           <table class="table table-hover table-bordered">
             <thead>
               <tr>
-                <th>Mã</th>
-                <th>Tiền giảm</th>
+                <th>Tên KM</th>
+                <th>Min</th>
+                <th>% KM</th>
                 <th>Thời gian áp dụng</th>
                 <th>Trạng thái</th>
                 <th>@lang('Action')</th>
@@ -103,10 +104,13 @@
                   onsubmit="return confirm('@lang('confirm_action')')">
                   <tr class="valign-middle">
                     <td>
-                      {!! $row->code !!}
+                      {!! $row->title !!}
                     </td>
                     <td>
-                      {!! number_format ($row->discount) !!}
+                      {!! number_format ($row->price) !!}
+                    </td>
+                    <td>
+                      {!! number_format ($row->percent) !!}
                     </td>
                     <td>
                       <?php 
@@ -115,7 +119,7 @@
                       ?>
                     </td>
                     <td>
-                      {{ $array_staus[$row->status] }}
+                      {{ $row->status == 1 ? 'HĐ' : 'Không' }}
                     </td>
                     <td>
                       <a class="btn btn-sm btn-warning" data-toggle="tooltip" title="@lang('update')"

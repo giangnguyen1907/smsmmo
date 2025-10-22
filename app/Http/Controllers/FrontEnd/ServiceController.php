@@ -5,6 +5,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\RentHistory;
+use App\Models\Voucher;
 use App\Models\CmsHistoryRechargeuser;
 use App\Models\Service;
 use App\Jobs\FetchBossOtpServices;
@@ -23,9 +24,7 @@ class ServiceController extends Controller
         if (!Auth::check()) {
             return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
         }
-
-        // dd($this->checkBalance());
-
+        $apiKey = $this->apitoken ?? env('BOSSOTP_API_KEY');
         $user = Auth::user();
         // // dd($this->apitoken);
         // $url = 'https://bossotp.net/api/v5/service-manager/services/me';
@@ -68,7 +67,7 @@ class ServiceController extends Controller
 
 
         // Danh sách sim đã thuê
-        $sims = RentHistory::where('user_id',$user->id)->get();
+        $sims = RentHistory::where('user_id',$user->id)->orderBy('id','DESC')->get();
         // Lọc dữ liệu
         $filtered = $sims->filter(function ($sim) use ($keyword, $network, $service_id, $prefix) {
             $match = true;
@@ -86,7 +85,7 @@ class ServiceController extends Controller
         });
 
         // Phân trang
-        $perPage = 5;
+        $perPage = 10;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $currentItems = $filtered->slice(($currentPage - 1) * $perPage, $perPage)->values();
         $paginatedSims = new LengthAwarePaginator(
@@ -98,8 +97,37 @@ class ServiceController extends Controller
         );
         $services = Service::where('status', 1)
                    ->orderBy('id', 'ASC')
-                   ->get();
+                   ->get()->keyby('id');
 
+        // Lấy danh sách sim đang chờ thuê
+        $dsDaThue = $sims->where('status','PENDING');
+
+        foreach($dsDaThue as $daThue){
+            $response = Http::get('https://bossotp.net/api/v4/rents/check', [
+                'api_token' => $apiKey,
+                '_id' => $daThue->rent_id,
+            ]);
+
+            if ($response->successful()) {
+                $dataCheck = $response->json();
+                $trangthai = $dataCheck['status'];
+                $otp_code = $dataCheck['otp'] ?? '';
+
+                $daThue->status = $trangthai;
+                $daThue->otp_code = $otp_code;
+
+                $daThue->save();
+
+                $price = $daThue->price;
+                if($trangthai == 'FAILED'){
+                    // Hoàn tiền cho khách hàng
+                    $user->wallet = $user->wallet + $price;
+                    $user->save();
+                }
+            }
+        }
+
+        //dd($dsDathue);
         // Trả về view
         return view('frontend.services.rent-sim', [
             'sims' => $paginatedSims,
@@ -140,30 +168,37 @@ class ServiceController extends Controller
                 if($price_system == $price){
                     // Kiểm tra số dư
                     if($user->wallet >= $price){
-                        
+
                         // Gọi API tới trung gian thuê sim
-                        $response = Http::get('https://api.bossotp.net/api/v4/rents/create', [
+                        $prefixs_txt = implode('|',$prefixs);
+                        // dd($apiKey.'_'.$detailService->service_id.'_'.$prefixs_txt.'_'.$network);
+
+                        $response = Http::get('https://bossotp.net/api/v4/rents/create', [
                             'api_token' => $apiKey,
                             'service_id' => $detailService->service_id,
-                            'prefixs' => explode('|',$prefixs),
+                            'prefixs' => $prefixs_txt,
                             'network' => $network,
                         ]);
-                        if ($response->successful()) {
-                            $data = $response->json();
 
+                        if ($response->successful()) {
+                            $notice = 'Mua sim thành công';
+                            $data = $response->json();
+                            // dd($data);
                             // Lưu lịch sử thuê sim
                             $history = RentHistory::create([
                                 'user_id'   => $user->id,
-                                'service'   => $serviceId,
+                                'service_id'   => $serviceId,
                                 'sim_number'    => $data['number'] ?? null,
                                 'rent_id'  => $data['rent_id'] ?? null,
-                                'status'    => 'success',
+                                'status'    => 'PENDING',
                                 'price'     => $price,
                             ]);
 
                             // Trừ tiền trong ví của khách hàng
                             $user->wallet = $user->wallet - $price;
                             $user->save();
+
+                            // $this->checkBalance();
 
                         }else{
                             $notice = 'Không thể thuê sim, vui lòng thử lại sau.';
@@ -227,7 +262,7 @@ class ServiceController extends Controller
 
                                 $notice = "Giao dịch thành công";
                                 // Gọi API tới trung gian thuê sim
-                                $response = Http::get('https://api.bossotp.net/api/v4/rents/create', [
+                                $response = Http::get('https://bossotp.net/api/v4/rents/create', [
                                     'api_token' => $apiKey,
                                     'service_id' => $detailService->service_id,
                                     're_number' => $checkOrder['number'] ?? '',
@@ -248,7 +283,7 @@ class ServiceController extends Controller
                                     // Trừ tiền trong ví của khách hàng
                                     $user->wallet = $user->wallet - $price;
                                     $user->save();
-
+                                    $this->checkBalance();
                                 }else{
                                     $notice = 'Không thể thuê sim, vui lòng thử lại sau.';
                                 }
@@ -339,13 +374,28 @@ class ServiceController extends Controller
 
         $user = Auth::user();
         $keyword = $request->get('keyword');
-
+        $network = $request->get('network');
+        $service_id = $request->get('service');
+        $status = $request->get('status');
+        $statusValue = null;
+        if ($status === 'success') {
+            $statusValue = 0;
+        } elseif ($status === 'fail' || $status === 'failed' || $status === 'error') {
+            $statusValue = 1;
+        }
         $histories = RentHistory::query()
             ->where('user_id', $user->id)
             ->when($keyword, function ($q) use ($keyword) {
                 $q->where('sim_number', 'LIKE', "%$keyword%")
                 ->orWhere('service_id', 'LIKE', "%$keyword%");
             })
+            ->when(!empty($network), function ($q) use ($network) {
+                 $q->where('network', $network);
+            })
+            ->when(!empty($service_id), function ($q) use ($service_id) {
+                $q->where('service_id', $service_id);
+            })
+            ->when($statusValue !== null, fn($q) => $q->where('status', $statusValue))
             ->orderByDesc('id')
             ->paginate(10);
           $services = Service::where('status', 1)
@@ -364,6 +414,7 @@ class ServiceController extends Controller
         if (!Auth::check()) {
             return redirect()->route('frontend.login'); // Thay 'login' bằng route tên của bạn nếu khác
         }
+        // $this->checkBalance();
         $user = Auth::user();
         
         // Xử lý form nạp tiền
@@ -509,7 +560,7 @@ class ServiceController extends Controller
         return view('frontend.services.history-recharge', compact('histories','web_information','translates'));
     }
 
-    public function checkBalance(){
+    private function checkBalance(){
         // Gọi API tới trung gian thuê sim
         $apiKey = $this->apitoken ?? env('BOSSOTP_API_KEY');
         $response = Http::get('https://bossotp.net/api/v4/users/me/balance', [
@@ -521,7 +572,12 @@ class ServiceController extends Controller
             $balance = $data['balance'];
             // return $balance;
             // // Số tiền nhỏ hơn để gửi thông báo đến admin
-            if($balance < 100000){
+
+            $web_information = $this->web_information;
+
+            $nguongcanhbao = $web_information->information->price ?? 500000;
+
+            if($balance < $nguongcanhbao){
                 // $customer_name = Auth::user()->name;
                 // $document_name = "Nạp tiền hệ thống";
                 $txt_email = $this->web_information->information->email ?? '';
@@ -566,14 +622,36 @@ class ServiceController extends Controller
                 'status' => 3, // trạng thái chờ duyệt
                 'payment_method' => 2, // Chuyển khoản
             ]);
+
+
+            $customer_name = $user->name;
+            $document_name = "Nạp tiền hệ thống";
+            
+            // dd($this->web_information);
+            $txt_email = $this->web_information->information->email ?? '';
+            if($txt_email !=""){
+                $array_email = explode(',',$txt_email);
+
+                Mail::send('frontend.emails.pending', ['member_name' => $customer_name,'document_name'=>$document_name], function ($message) use ($array_email,$customer_name,$document_name) {
+                    foreach($array_email as $email){
+                        $message->to($email);
+                    }
+                    $message->subject($customer_name.' chờ nạp tiền hệ thống');
+                });
+            }
+            
+
             return redirect()->back()->with('successMessage', 'Cảm ơn bạn đã nạp tiền, vui lòng chờ 1-10 phút. Hệ thống đang xử lý yêu cầu của bạn.');
             // return back()->with('successMessage', "Nạp thành công " . number_format($amount) . " VNĐ!");
         }
+        $dateTime = now();
+        $listVoucher = Voucher::where('status',1)->where('start_date', '<=', $dateTime)->where('stop_date', '>=', $dateTime)->get();
 
-        // dd($this->web_information);
+
+        //dd($listVoucher);
         // $this->responseData['web_information'] = $this->web_information;
 
-        return view('frontend.services.recharge-account',['web_information'=>$this->web_information,'translates' => $this->translates]);
+        return view('frontend.services.recharge-account',['web_information'=>$this->web_information,'translates' => $this->translates,'listVoucher'=>$listVoucher]);
     }
 
 }

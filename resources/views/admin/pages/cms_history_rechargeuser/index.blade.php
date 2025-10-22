@@ -127,6 +127,7 @@
                             <th>Đơn hàng</th>
                             <th>Khách hàng</th>
                             <th>Số tiền</th>
+                            <th>Khuyến mại</th>
                             <th>Phương thức thanh toán</th>
                             <th>Trạng thái</th>
                             <th>Ngày tạo</th>
@@ -146,7 +147,10 @@
                                     {{ $row->customer_name }}
                                 </td>
                                 <td id="payment-{{ $row->id }}">
-                                    {{ number_format($row->payment) }} VNĐ
+                                    {{ number_format($row->payment) }} 
+                                </td>
+                                <td id="voucher-{{ $row->id }}">
+                                    {{ number_format($row->voucher) }}
                                 </td>
                                 <td>
                                     {{ $array_istype[$row->payment_method] ?? '' }}

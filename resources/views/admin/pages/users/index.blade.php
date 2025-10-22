@@ -79,8 +79,8 @@
             <thead>
               <tr>
                 <th>ID</th>
-                <th>@lang('email')</th>
                 <th>@lang('Full name')</th>
+                <th>@lang('Username')</th>
                 <th>@lang('Phone')</th>
                 <th>@lang('Số dư')</th>
                 <th>Ngày tạo</th>
@@ -98,10 +98,10 @@
                       {{ $row->id }}
                     </td>
                     <td>
-                      {{ $row->email }}
+                      {{ $row->name }}
                     </td>
                     <td>
-                      {{ $row->name }}
+                      {{ $row->username }}
                     </td>
                     <td>
                       {{ $row->phone }}

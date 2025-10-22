@@ -28,7 +28,7 @@
             <select name="service" class="form-control">
               <option value="">-- Chọn dịch vụ --</option>
                 @foreach($services as $key => $ser)
-                <option value="{{ $ser->service_id }}" data-price="{{ $ser->price_per_unit }}">{{ $ser->name }}</option>
+                <option value="{{ $ser->id }}" data-price="{{ $ser->price_per_unit }}">{{ $ser->name }}</option>
                 @endforeach
             </select>
           </div>

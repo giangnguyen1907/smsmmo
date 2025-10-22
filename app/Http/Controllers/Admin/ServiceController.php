@@ -42,7 +42,46 @@ class ServiceController extends Controller
         $this->responseData['services'] = $services;
         return $this->responseView($this->viewPart . '.index');
     }
+    // Form cập nhật giá dịch vụ
+  public function updatePrice(Request $request)
+  {
+    $percent = $request->input('percent');
 
+    // Kiểm tra hợp lệ
+    if (!is_numeric($percent)) {
+        return back()->with('error', 'Giá trị phần trăm không hợp lệ!');
+    }
+
+    // Gọi API BossOTP
+    $url = 'https://bossotp.net/api/v4/service-manager/services';
+    $response = Http::withHeaders([
+        'accept' => '*/*',
+    ])->get($url);
+
+    if (!$response->successful()) {
+        return back()->with('error', 'Không thể lấy dữ liệu từ BossOTP.');
+    }
+
+    $allServiceRoot = $response->json();
+
+        if (!is_array($allServiceRoot)) {
+        return back()->with('error', 'Dữ liệu BossOTP không hợp lệ.');
+    }
+
+    // Lấy tất cả service hiện có trong DB
+    $services = Service::all();
+     
+    foreach ($services as $service) {
+        $remote = collect($allServiceRoot)->firstWhere('_id', $service->service_id); 
+        if ($remote && isset($remote['price'])) {
+            // Cập nhật lại giá mới theo % tăng
+            $service->price_per_unit = $remote['price'] * (1 + $percent / 100);
+            $service->save();
+        }
+    }
+
+    return back()->with('success', "Đã cập nhật giá dịch vụ!");
+   }
     // Form thêm dịch vụ
     public function create()
     {
